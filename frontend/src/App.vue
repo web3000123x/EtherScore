@@ -2,12 +2,12 @@
   <v-app>
     <v-app-bar
       app
-      color="primary"
+      color="black"
       dark
     >
       <div class="d-flex align-center">
         <v-img
-          alt="Vuetify Logo"
+          alt="EtherScore Logo"
           class="shrink mr-2"
           contain
           :src="require('./assets/logo.svg')"
@@ -15,19 +15,38 @@
           width="40"
         />
 
-        EtherScore
+        <h1> EtherScore </h1>
       </div>
 
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
+      color="secondary"
+      class="ma-1 white--text"
+      align="center"
+      justify="space-around"
+      v-on:click="connectionMetamask()"
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <span v-if="metamaskAddress === ''"> Connect Wallet</span>
+      <span v-else> {{ metamaskAddress }}</span>
+      <v-tooltip
+        v-if="metamaskConnected"
+        bottom
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon
+            color="white"
+            v-bind="attrs"
+            v-on="on"
+            v-on:click="copyAddress"
+          >
+            mdi-content-copy
+          </v-icon>
+        </template>
+        <span>{{ msg }}</span>
+      </v-tooltip>
+    </v-btn>
+      
     </v-app-bar>
 
     <v-main>
@@ -42,7 +61,26 @@ export default {
   name: 'App',
 
   data: () => ({
-    //
-  }),
+      connectionAsked: false,
+      metamaskConnected: false,
+      metamaskAddress: '',
+      msg: 'Copy Address',
+    }),
+  methods: {
+      async copyAddress () {
+        await navigator.clipboard.writeText(this.metamaskAddress)
+        this.msg = 'Copied'
+      },
+      async connectionMetamask () {
+        if (this.connectionAsked === false) {
+          this.connectionAsked = true
+          var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+          this.metamaskConnected = true
+          this.metamaskAddress = accounts[0]
+        } else {
+          this.copyAddress()
+        }
+      },
+  }
 };
 </script>
