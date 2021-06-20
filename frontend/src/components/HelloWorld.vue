@@ -1,50 +1,30 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      NFTs based on Ethereum transaction history
-    </p>
-    <h3>Data</h3>
-    <ul>
-      <li> {{ info }} </li>
-    </ul>
-  </div>
+  <v-container>
+    <v-row class="text-center">
+      <v-col cols="12">
+        <v-img
+          :src="require('../assets/logo.svg')"
+          class="my-3"
+          contain
+          height="200"
+        />
+      </v-col>
+
+      <v-col class="mb-4">
+        <h1 class="display-2 font-weight-bold mb-3">
+          EtherScore
+        </h1>
+
+        <p class="subheading font-weight-regular">
+          NFTs based on Ethereum transaction history
+        </p>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import axios from 'axios'
-
-export default {
-  name: 'Home',
-  props: {
-    msg: String
-  },
-  data () {
-    return {
-      info: null
-    }
-  },
-  mounted () {
-    axios
-      .get(process.env.VUE_APP_BASE_URL + 'ping')
-      .then(response => (this.info = response.data))
+  export default {
+    name: 'HelloWorld',
   }
-}
 </script>
-
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
