@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+
+  #Backend service, servng api requests
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DEBUG=True
+    networks:
+      - internal
+    restart: always
+
+  #Frontend, relying on the backend for api calls
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - './frontend:/app'
+      - '/app/node_modules'
+    environment:
+      - VUE_APP_BASE_URL=http://localhost/api/
+    networks:
+      - internal
+
+  #Reverse proxy routing the traffic to the right containers
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - HOST=localhost
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
