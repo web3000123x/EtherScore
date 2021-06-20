@@ -52,20 +52,25 @@
     <v-main>
       <router-view/>
     </v-main>
+    <app-footer/>
   </v-app>
 </template>
 
 <script>
 
+import AppFooter from '@/components/AppFooter.vue'
+
 export default {
   name: 'App',
-
+  components: {
+    AppFooter
+  },
   data: () => ({
-      connectionAsked: false,
-      metamaskConnected: false,
-      metamaskAddress: '',
-      msg: 'Copy Address',
-    }),
+    connectionAsked: false,
+    metamaskConnected: false,
+    metamaskAddress: '',
+    msg: 'Copy Address',
+  }),
   methods: {
       async copyAddress () {
         await navigator.clipboard.writeText(this.metamaskAddress)
