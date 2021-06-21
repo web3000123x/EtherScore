@@ -14,4 +14,7 @@ $ cd EtherScore
 ```bash
 $ docker-compose up --build
 ```
-3. The application is running here: `http://localhost` and the backend at: `http://localhost/api/`
+3. Useful links: 
+* Web front : `http://localhost`
+* API endpoint : `http://localhost/api/`
+* API doc : `http://localhost/api/docs`
