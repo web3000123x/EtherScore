@@ -59,10 +59,10 @@
       justify="space-around"
       v-on:click="connectionMetamask()"
       >
-      <span v-if="metamaskAddress === ''"> Connect Wallet</span>
-      <span v-else> {{ metamaskAddress }}</span>
+      <span v-if="this.$store.state.address === ''"> Connect Wallet</span>
+      <span v-else> {{ this.$store.state.address }}</span>
       <v-tooltip
-        v-if="metamaskConnected"
+        v-if="this.$store.state.address !== ''"
         bottom
       >
         <template v-slot:activator="{ on, attrs }">
@@ -99,21 +99,18 @@ export default {
   },
   data: () => ({
     connectionAsked: false,
-    metamaskConnected: false,
-    metamaskAddress: '',
     msg: 'Copy Address',
   }),
   methods: {
       async copyAddress () {
-        await navigator.clipboard.writeText(this.metamaskAddress)
+        await navigator.clipboard.writeText(this.$store.state.address)
         this.msg = 'Copied'
       },
       async connectionMetamask () {
         if (this.connectionAsked === false) {
           this.connectionAsked = true
           var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-          this.metamaskConnected = true
-          this.metamaskAddress = accounts[0]
+          this.$store.commit('updateAddress',accounts[0])
         } else {
           this.copyAddress()
         }

@@ -20,6 +20,8 @@
             with a button claimable... 
           </p>
 
+          <metamask-chip/>
+
           <p>
             Data request from backend : 
           </p>
@@ -39,9 +41,13 @@
 
 <script>
 import axios from 'axios'
+import MetamaskChip from '../components/MetamaskChip.vue'
 
   export default {
     name: 'Badges',
+    components: {
+      MetamaskChip
+    },
     data () {
       return {
         info: null

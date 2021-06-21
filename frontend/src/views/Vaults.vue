@@ -19,6 +19,8 @@
             This page will do the interface with EtherScore smart contracts
           </p>
 
+          <metamask-chip/>
+
           <p>
             Data request from backend : 
           </p>
@@ -38,9 +40,13 @@
 
 <script>
 import axios from 'axios'
+import MetamaskChip from '../components/MetamaskChip.vue'
 
   export default {
     name: 'Vaults',
+    components: {
+      MetamaskChip
+    },
     data () {
       return {
         info: null
