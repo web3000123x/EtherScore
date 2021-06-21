@@ -19,11 +19,9 @@ badge0 = {
     "conditions": [
         {
             "protocol": "uniswap",
-            "rule": "null"
-        },
-        {
-            "protocol": "uniswap",
-            "rule": "null"
+            "rule": "number of swaps",
+            "target": 50,
+            "current": 10
         }
     ]
 }
@@ -41,10 +39,6 @@ badge1 = {
             "protocol": "uniswap",
             "rule": "null"
         },
-        {
-            "protocole": "uniswap",
-            "rule": "null"
-        }
     ]
 }
 
@@ -52,21 +46,20 @@ badge1 = {
 # Define the different app endpoints #
 ######################################
 
+# API root
+@app.get("/")
+async def root():
+    return {"message": "EtherScore backend"}
+
 # sanity check route
 @app.get("/ping")
 def ping():
     return str(datetime.datetime.now())
 
-# List all existing badges
-@app.get("/all_badges")
-def all_badges():
-    return [badge0, badge1]
-
-# Retrieve claimable badges for a given address
-@app.post("/claimable_badges")
+# Retrieve badges and status for a given address
+@app.post("/badges")
 async def claimable_badges(request: Request):
     content = await request.json()
     wallet_address = str(content["wallet_address"])
     print("User address: " + wallet_address)
-    id_badge0 = 0
-    return [id_badge0]
+    return [badge0, badge1]
