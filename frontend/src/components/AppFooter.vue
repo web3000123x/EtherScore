@@ -4,7 +4,9 @@
       class="text-center"
       cols="12"
     >
-      Copyright {{ new Date().getFullYear() }} — <strong>EtherScore</strong>
+      Copyright  &copy; {{ new Date().getFullYear() }} — 
+      <img width="20px" src="../assets/etherscore_black_transparent.svg">
+      <strong>EtherScore</strong>
     </v-col>
   </v-footer>
 </template>
