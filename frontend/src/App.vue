@@ -19,6 +19,38 @@
       </div>
 
       <v-spacer></v-spacer>
+      <v-btn
+        min-width="0"
+        text
+        to="/"
+      >
+        Home
+        <v-icon>mdi-home-circle</v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        min-width="0"
+        text
+        to="/badges"
+      >
+        Badges
+        <v-icon>mdi-decagram</v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        min-width="0"
+        text
+        to="/vaults"
+      >
+        Vaults
+        <v-icon>mdi-treasure-chest</v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
 
       <v-btn
       color="secondary"
