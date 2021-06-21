@@ -4,7 +4,7 @@ from fastapi import Request, FastAPI, status
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
-PREFIX = "/api"
+PREFIX = "/api" # defined in the reverse proxy
 
 # instantiate the app
 app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
@@ -50,11 +50,17 @@ badge1 = {
 # API root
 @app.get("/")
 async def root():
+    """
+    Root endpoint
+    """
     return {"message": "EtherScore backend"}
 
-# sanity check route
-@app.get("/ping")
+# Healthcheck route
+@app.get("/ping", status_code=status.HTTP_200_OK)
 async def ping():
+    """
+    Endpoint for healthcheck
+    """
     return str(datetime.datetime.now())
 
 # Retrieve badges and status for a given address
