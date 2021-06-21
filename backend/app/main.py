@@ -1,12 +1,13 @@
-import os, datetime, json
+import os, datetime
 
-from fastapi import Request, FastAPI
+from fastapi import Request, FastAPI, status
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
+PREFIX = "/api"
 
 # instantiate the app
-app = FastAPI(debug=DEBUG, title="EtherScore-backend")
+app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
 
 badge0 = {
     "id" : 0,
@@ -53,12 +54,15 @@ async def root():
 
 # sanity check route
 @app.get("/ping")
-def ping():
+async def ping():
     return str(datetime.datetime.now())
 
 # Retrieve badges and status for a given address
-@app.post("/badges")
-async def claimable_badges(request: Request):
+@app.post(path="/badges", status_code=status.HTTP_200_OK)
+async def badges(request: Request):
+    """
+    Retrieve badges and status for a given address
+    """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
     print("User address: " + wallet_address)
