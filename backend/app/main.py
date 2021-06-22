@@ -40,27 +40,27 @@ class UniswapTransactions(TheGraph):
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
         super().__init__(subgraph_url)
-        self.template ='''
+        self.template ="""
 		{
-        swaps(orderBy: timestamp, orderDirection: desc, where: { to: "{{ address }}" }) {
-            id
-            transaction {
+            swaps(orderBy: timestamp, where: { to: "{{ address }}" }) {
                 id
-                timestamp
-            }
-            pair {
-                token0 {
-                    symbol
+                transaction {
+                    id
+                    timestamp
                 }
-                token1 {
-                    symbol
+                pair {
+                    token0 {
+                        symbol
+                    }
+                    token1 {
+                        symbol
+                    }
                 }
+                to
+                sender
             }
-            to
-            sender
-        }
 		}
-		'''
+		"""
 
 
 badge0 = {
