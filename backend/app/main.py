@@ -1,13 +1,49 @@
 import os, datetime
-
 from fastapi import Request, FastAPI, status
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
+from jinja2 import Template
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
 PREFIX = "/api" # defined in the reverse proxy
 
 # instantiate the app
-app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
+app = FastAPI(debug=DEBUG, title="EtherScore-backend", root_prefix=PREFIX)
+
+
+class TheGraph():
+    """
+    Base class to request TheGraph
+    """
+    def __init__(self, subgraph_url) -> None:
+        self.sample_transport = RequestsHTTPTransport(
+			url=subgraph_url,
+			verify=True,
+			retries=5,
+		)
+        self.client = client = Client(
+			transport=self.sample_transport
+		)
+        self.template = ""
+
+    def run(self, values={}):
+        rendered = Template(self.template).render(values)
+        query = gql(rendered)
+        return self.client.execute(query)
+
+
+class UniswapTransactions(TheGraph):
+    """
+    Get Uniswap transactions for a given wallet address
+    """
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
+        query = '/app/queries/uniswap_transactions.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+
 
 badge0 = {
     "id" : 0,
@@ -43,6 +79,9 @@ badge1 = {
     ]
 }
 
+# Define some objects shared
+Uni_Transac = UniswapTransactions()
+
 ######################################
 # Define the different app endpoints #
 ######################################
@@ -67,9 +106,11 @@ async def ping():
 @app.post(path="/badges", status_code=status.HTTP_200_OK)
 async def badges(request: Request):
     """
-    Retrieve badges and status for a given address
+    Retrieve badges and their status for a given address (ex 0x1F653f9d3dD5a0fc61aFC6969e4f07e32Bf4CDe0)
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
+    uniswap_transactions = Uni_Transac.run({'address': wallet_address})['swaps']
+    print(uniswap_transactions, "size:", len(uniswap_transactions))
     print("User address: " + wallet_address)
     return [badge0, badge1]
