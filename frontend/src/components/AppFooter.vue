@@ -5,7 +5,7 @@
       cols="12"
     >
       Copyright  &copy; {{ new Date().getFullYear() }} — 
-      <img width="20px" src="../assets/etherscore_black_transparent.svg">
+      <img width="20px" src="../assets/etherscore_black_transparent.png">
       <strong>EtherScore</strong>
     </v-col>
   </v-footer>

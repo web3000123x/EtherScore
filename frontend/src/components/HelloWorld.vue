@@ -1,7 +1,7 @@
 <template>
   <v-container>
      <section>
-        <v-parallax src="@/assets/paralax_white.jpg" height="500">
+        <v-parallax src="@/assets/paralax.jpg" height="500">
           <v-layout
             column
             align-center
@@ -9,7 +9,7 @@
             class="white--text"
           >
             <img
-              src="@/assets/etherscore_black_transparent.svg"
+              src="@/assets/etherscore_black_transparent.png"
               class="my-3"
               height="200"
             />
@@ -97,7 +97,7 @@
       </section>
 
       <section>
-        <v-parallax src="@/assets/paralax_white.jpg" height="380">
+        <v-parallax src="@/assets/paralax.jpg" height="380">
           <v-layout column align-center justify-center>
             <div class="headline black--text mb-4 text-center">Curated Vaults</div>
             <em class="black--text"> Get better staking profits if you are a reliable user</em>
