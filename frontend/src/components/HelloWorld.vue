@@ -16,7 +16,7 @@
             <h1 class="black--text mb-2 display-1 text-center">EtherScore</h1>
             <div class="black--text subheading mb-4 text-center">NFTs based on Ethereum transaction history</div>
             <v-btn
-              class="mt-12"
+              class="mt-12 rounded-xl pa-9"
               dark
               large
               href="/badges"
@@ -102,7 +102,7 @@
             <div class="headline black--text mb-4 text-center">Curated Vaults</div>
             <em class="black--text"> Get better staking profits if you are a reliable user</em>
             <v-btn
-              class="mt-12"
+              class="mt-12 rounded-xl pa-9"
               dark
               large
               href="/vaults"

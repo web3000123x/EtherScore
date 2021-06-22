@@ -19,6 +19,7 @@
 
       <v-spacer></v-spacer>
       <v-btn
+        class="rounded-xl pa-5"
         min-width="0"
         text
         to="/"
@@ -30,6 +31,7 @@
       <v-spacer></v-spacer>
 
       <v-btn
+        class="rounded-xl pa-5"
         min-width="0"
         text
         to="/badges"
@@ -41,6 +43,7 @@
       <v-spacer></v-spacer>
 
       <v-btn
+        class="rounded-xl pa-5"
         min-width="0"
         text
         to="/vaults"
@@ -52,11 +55,10 @@
       <v-spacer></v-spacer>
 
       <v-btn
-      color="secondary"
-      class="ma-1 white--text"
-      align="center"
-      justify="space-around"
-      v-on:click="connectionMetamask()"
+        class="rounded-xl pa-6"
+        align="center"
+        justify="space-around"
+        v-on:click="connectionMetamask()"
       >
       <span v-if="this.$store.state.address === ''"> Connect Wallet</span>
       <span v-else> {{ this.$store.state.address }}</span>

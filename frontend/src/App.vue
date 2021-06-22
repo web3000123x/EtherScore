@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="main" :style="{background: $vuetify.theme.themes[theme].background}">
     <app-bar/>
 
     <v-main>
@@ -19,6 +19,11 @@ export default {
   components: {
     AppFooter,
     AppBar
+  },
+  computed:{
+    theme(){
+      return (this.$vuetify.theme.dark) ? 'dark' : 'light'
+    }
   }
 };
 </script>
