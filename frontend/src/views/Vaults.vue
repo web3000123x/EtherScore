@@ -2,37 +2,217 @@
   <v-container >
     <v-row class="text-center" align="center" justify="center">
         <v-card
-          elevation="25"
-          color="secondary"
-          style="margin-top:15px; max-width:450px; border-radius: 20px;
+          elevation="15"
+          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
            padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
            opacity: 0.95;"
+          class="pa-10"
         >
-          
-          <h1 class="display-2 mb-3">
-            <v-icon color="white">mdi-treasure-chest</v-icon>
-            Vaults
-            <v-icon color="white">mdi-treasure-chest</v-icon>
+          <v-row>
+          <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
+            Supply
           </h1>
-
-          <p class="subheading font-weight-regular">
-            This page will do the interface with EtherScore smart contracts
-          </p>
-
-          <metamask-chip/>
-
-          <p>
-            Data request from backend : 
-          </p>
           <v-spacer></v-spacer>
-          <v-chip
-            color="white"
-            class="text-subtitle-1 font-weight-light"
-            outlined
-            text-color="white"
+          <metamask-chip/>
+          </v-row>
+          
+          <p class="subheading font-weight-regular black--text">
+            Get access to advantages based on your NFT badges
+          </p>
+
+          <v-spacer></v-spacer>
+
+          <v-row
+            align="center"
+            justify="center"
           >
-            {{ info }}
-          </v-chip>
+              <v-card
+                class="mx-primary"
+                elevation="5"
+                style="margin: 10px ;margin-top:20px; max-width:300px; border-radius: 20px;
+                padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+                opacity: 0.95;"
+                color="background"
+              >
+              <v-tabs
+                v-model="tabSupply"
+                background-color="secondary"
+                fixed-tabs
+                centered
+                dark
+                icons-and-text
+              >
+                <v-tabs-slider></v-tabs-slider>
+
+                <v-tab href="#tab-1">
+                  Stake
+                  <v-icon>mdi-account-arrow-right</v-icon>
+                </v-tab>
+
+                <v-tab href="#tab-2">
+                  Unstake
+                  <v-icon>mdi-account-arrow-left</v-icon>
+                </v-tab>
+              </v-tabs>
+
+              <v-tabs-items v-model="tabSupply">
+                <v-tab-item
+                  v-for="i in 3"
+                  :key="i"
+                  :value="'tab-' + i"
+                >
+                </v-tab-item>
+              </v-tabs-items>
+                <v-spacer />
+                <!-- TODO: Next chips to replace with user ETH balance (or ETH staked) -->
+                <v-chip
+                  class="text-subtitle-1 font-weight-light black"
+                  v-if="this.tabSupply === 'tab-1'"
+                  style="margin: 5px"
+                  outlined
+                >
+                  Available balance: 0 ETH
+                </v-chip>
+                <v-chip
+                  class="text-subtitle-1 font-weight-light black"
+                  v-else
+                  style="margin: 5px"
+                  outlined
+                >
+                  Staked: 0 ETH
+                </v-chip>
+                <v-spacer />
+                <!-- TODO: Next slider max to replace with user ETH balance (or ETH staked) -->
+
+                <p class="black--text">{{ valueSubmittedSupply }} ETH</p> 
+                <v-slider
+                    v-model="valueSubmittedSupply"
+                    color="secondary"
+                    hint="ETH value"
+                    step="0.005"
+                    max="1" 
+                    min="0"
+                ></v-slider>
+
+                <v-spacer />
+
+                <v-btn
+                  color="secondary"
+                  class="rounded-xl pa-5"
+                  v-on:click="fakeMetamaskPrompt"
+                >
+                  <span> Confirm </span>
+                </v-btn>
+                <v-spacer />
+              </v-card>
+            </v-row>
+        </v-card>
+        <v-card
+          elevation="15"
+          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
+           padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+           opacity: 0.95;"
+          class="pa-10"
+        >
+          <v-row>
+          <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
+            Borrow
+          </h1>
+          <v-spacer></v-spacer>
+          <metamask-chip/>
+          </v-row>
+          
+          <p class="subheading font-weight-regular black--text">
+            Get access to advantages based on your NFT badges
+          </p>
+
+          <v-spacer></v-spacer>
+
+          <v-row
+            align="center"
+            justify="center"
+          >
+              <v-card
+                class="mx-primary"
+                elevation="5"
+                style="margin: 10px ;margin-top:20px; max-width:300px; border-radius: 20px;
+                padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+                opacity: 0.95;"
+                color="background"
+              >
+              <v-tabs
+                v-model="tabBorrow"
+                background-color="secondary"
+                fixed-tabs
+                centered
+                dark
+                icons-and-text
+              >
+                <v-tabs-slider></v-tabs-slider>
+
+                <v-tab href="#tab-1">
+                  Stake
+                  <v-icon>mdi-account-arrow-right</v-icon>
+                </v-tab>
+
+                <v-tab href="#tab-2">
+                  Unstake
+                  <v-icon>mdi-account-arrow-left</v-icon>
+                </v-tab>
+              </v-tabs>
+
+              <v-tabs-items v-model="tabBorrow">
+                <v-tab-item
+                  v-for="i in 3"
+                  :key="i"
+                  :value="'tab-' + i"
+                >
+                </v-tab-item>
+              </v-tabs-items>
+                <v-spacer />
+                <!-- TODO: Next chips to replace with user ETH balance (or ETH staked) -->
+                <v-chip
+                  class="text-subtitle-1 font-weight-light black"
+                  v-if="this.tabBorrow === 'tab-1'"
+                  style="margin: 5px"
+                  outlined
+                >
+                  Available balance: 0 ETH
+                </v-chip>
+                <v-chip
+                  class="text-subtitle-1 font-weight-light black"
+                  v-else
+                  style="margin: 5px"
+                  outlined
+                >
+                  Staked: 0 ETH
+                </v-chip>
+                <v-spacer />
+                <!-- TODO: Next slider max to replace with user ETH balance (or ETH staked) -->
+
+                <p class="black--text">{{ valueSubmittedBorrow }} ETH</p> 
+                <v-slider
+                    v-model="valueSubmittedBorrow"
+                    color="secondary"
+                    hint="ETH value"
+                    step="0.005"
+                    max="1" 
+                    min="0"
+                ></v-slider>
+
+                <v-spacer />
+                <!-- TODO: Replace button action with the right contract interaction -->
+
+                <v-btn
+                  color="secondary"
+                  class="rounded-xl pa-5"
+                  v-on:click="fakeMetamaskPrompt"
+                >
+                  <span> Confirm </span>
+                </v-btn>
+                <v-spacer />
+              </v-card>
+            </v-row>
         </v-card>
       </v-row>
   </v-container>
@@ -49,13 +229,22 @@ import MetamaskChip from '../components/MetamaskChip.vue'
     },
     data () {
       return {
-        info: null
+        info: null,
+        valueSubmittedSupply: 0,
+        valueSubmittedBorrow: 0,
+        tabSupply: null,
+        tabBorrow: null
       }
     },
     mounted () {
       axios
         .get(process.env.VUE_APP_BASE_URL + 'ping')
         .then(response => (this.info = response.data))
+    },
+    methods: {
+      fakeMetamaskPrompt(){
+        alert('This is a fake metamask prompt')
+      }
     }
   }
 </script>
