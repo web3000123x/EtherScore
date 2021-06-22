@@ -33,33 +33,32 @@ class TheGraph():
         return self.client.execute(query)
 
 
-
 class UniswapTransactions(TheGraph):
     """
     Get Uniswap transactions for a given wallet address
     """
     def __init__(self) -> None:
-	    subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
-	    super().__init__(subgraph_url)
-	    self.template ='''
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
+        super().__init__(subgraph_url)
+        self.template ='''
 		{
-			swaps(orderBy: timestamp, orderDirection: desc, where: { to: "{{ address }}" }) {
-				id
-				transaction {
-					id
-					timestamp
-				}
-				pair {
-					token0 {
-						symbol
-					}
-					token1 {
-						symbol
-					}
-				}
-				to
-				sender
-			}
+        swaps(orderBy: timestamp, orderDirection: desc, where: { to: "{{ address }}" }) {
+            id
+            transaction {
+                id
+                timestamp
+            }
+            pair {
+                token0 {
+                    symbol
+                }
+                token1 {
+                    symbol
+                }
+            }
+            to
+            sender
+        }
 		}
 		'''
 
@@ -122,7 +121,7 @@ async def ping():
 @app.post(path="/badges", status_code=status.HTTP_200_OK)
 async def badges(request: Request):
     """
-    Retrieve badges and status for a given address 0x1F653f9d3dD5a0fc61aFC6969e4f07e32Bf4CDe0
+    Retrieve badges and their status for a given address (ex 0x1F653f9d3dD5a0fc61aFC6969e4f07e32Bf4CDe0)
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
