@@ -9,7 +9,7 @@ DEBUG = os.environ.get('DEBUG')
 PREFIX = "/api" # defined in the reverse proxy
 
 # instantiate the app
-app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
+app = FastAPI(debug=DEBUG, title="EtherScore-backend", root_prefix=PREFIX)
 
 
 class TheGraph():
@@ -39,28 +39,10 @@ class UniswapTransactions(TheGraph):
     """
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
+        query = '/app/queries/uniswap_transactions.ql'
         super().__init__(subgraph_url)
-        self.template ="""
-		{
-            swaps(orderBy: timestamp, where: { to: "{{ address }}" }) {
-                id
-                transaction {
-                    id
-                    timestamp
-                }
-                pair {
-                    token0 {
-                        symbol
-                    }
-                    token1 {
-                        symbol
-                    }
-                }
-                to
-                sender
-            }
-		}
-		"""
+        with open(query, 'r') as f:
+            self.template = f.read()
 
 
 badge0 = {
@@ -97,6 +79,9 @@ badge1 = {
     ]
 }
 
+# Define some objects shared
+Uni_Transac = UniswapTransactions()
+
 ######################################
 # Define the different app endpoints #
 ######################################
@@ -125,7 +110,7 @@ async def badges(request: Request):
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
-    uniswap_transactions = UniswapTransactions().run({'address': wallet_address})['swaps']
+    uniswap_transactions = Uni_Transac.run({'address': wallet_address})['swaps']
     print(uniswap_transactions, "size:", len(uniswap_transactions))
     print("User address: " + wallet_address)
     return [badge0, badge1]
