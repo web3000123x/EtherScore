@@ -3,22 +3,14 @@
     <v-row class="text-center" align="center" justify="center">
         <v-card
           elevation="15"
-          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
+          style="margin:50px; max-width:500px; min-height:450px; border-radius: 20px;
            padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
            opacity: 0.95;"
-          class="pa-10"
+          class="pa-10 ml-0"
         >
-          <v-row>
-          <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
+          <h1 class="display-2 black--text">
             Supply
           </h1>
-          <v-spacer></v-spacer>
-          <metamask-chip/>
-          </v-row>
-          
-          <p class="subheading font-weight-regular black--text">
-            Get access to advantages based on your NFT badges
-          </p>
 
           <v-spacer></v-spacer>
 
@@ -107,25 +99,102 @@
               </v-card>
             </v-row>
         </v-card>
+
+        <!-- BONUS -->
         <v-card
           elevation="15"
-          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
+          style="margin:0px; max-width:300px; min-height:450px; border-radius: 20px;
            padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
            opacity: 0.95;"
-          class="pa-10"
         >
-          <v-row>
-          <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
-            Borrow
+          <v-row class="text-center" align="center" justify="center">
+          
+          <h1 class="display-2 black--text">
+            Bonus
           </h1>
-          <v-spacer></v-spacer>
           <metamask-chip/>
-          </v-row>
+          
           
           <p class="subheading font-weight-regular black--text">
             Get access to advantages based on your NFT badges
           </p>
 
+          <v-list-item
+            v-for="folder in folders"
+            :key="folder.title"
+            class="ma-0 pa-0"
+          >
+            <v-list-item-avatar>
+              <v-icon
+                color="secondary"
+                dark
+                align="left"
+                x-large
+              >
+                mdi-decagram
+              </v-icon>
+            </v-list-item-avatar>
+
+            <v-list-item-content align="left">
+              <v-list-item-title v-text="folder.title"></v-list-item-title>
+
+              <v-list-item-subtitle v-text="folder.subtitle"></v-list-item-subtitle>
+            </v-list-item-content>
+
+            <v-list-item-action>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      v-if="folder.title === 'Badge 0 - Compound'"
+                      color="green"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      mdi-checkbox-marked-outline
+                    </v-icon>
+                    <v-icon
+                      v-else
+                      color="secondary"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      mdi-checkbox-blank-outline
+                    </v-icon>
+                  </template>
+                  <span v-if="folder.title === 'Badge 0 - Compound'">You have this NFT</span>
+                  <span v-else>You do not have this NFT</span>
+                </v-tooltip>
+
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      color="grey lighten-1"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      mdi-information
+                    </v-icon>
+                  </template>
+                  <span>More informations</span>
+                </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
+          </v-row>
+          
+        </v-card>
+
+        <!-- Borrow -->
+        <v-card
+          elevation="15"
+          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
+           padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+           opacity: 0.95;"
+          class="pa-10 mr-0"
+        >
+          <h1 class="display-2 black--text">
+            Borrow
+          </h1>
           <v-spacer></v-spacer>
 
           <v-row
@@ -233,7 +302,20 @@ import MetamaskChip from '../components/MetamaskChip.vue'
         valueSubmittedSupply: 0,
         valueSubmittedBorrow: 0,
         tabSupply: null,
-        tabBorrow: null
+        tabBorrow: null,
+        folders: [
+        {
+          subtitle: '5 % collateral covered',
+          title: 'Badge 0 - Compound',
+        },
+        {
+          subtitle: '5 % collateral covered',
+          title: 'Badge 1 - Aave',
+        },
+        {
+          subtitle: '10% discount on minting',
+          title: 'Badge 3 - EtherScore',
+        }]
       }
     },
     mounted () {
