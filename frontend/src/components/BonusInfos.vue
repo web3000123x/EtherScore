@@ -90,8 +90,12 @@
 </template>
 
 <script>
+import MetamaskChip from '../components/MetamaskChip.vue'
   export default {
     name: 'BonusInfos',
+    components: {
+      MetamaskChip
+    },
     data () {
       return {
         badges: [
