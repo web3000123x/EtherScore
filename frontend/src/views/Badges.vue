@@ -23,16 +23,17 @@
           
 
           <v-spacer></v-spacer>
-          <v-btn
+          <!-- <v-btn
             color="secondary"
             class="ma-1 white--text rounded-xl  "
             align="center"
             justify="space-around"
             v-on:click="getTodos()"
             v-if="this.$store.state.address !== ''"
+            
           >
             <span> Scan address</span>
-          </v-btn>
+          </v-btn> -->
 
           <v-row
             align="center"
@@ -72,25 +73,27 @@
                 <v-spacer />
                 <v-progress-linear
                   :value="getExperienceValue(nft)"
+                  v-if="$store.state.address !== ''"
+                  class = "mt-1"
                   height="20"
                 > 
                   <span v-if="getExperienceValue(nft) !== 100"> {{ nft.conditions[0].current + " / " + nft.conditions[0].target }} </span>
                   <span v-else> 100% </span>
                 </v-progress-linear>
-
                 <v-spacer />
+                <br/>
+                <v-row>
                 <badge-dialog-detail :nft="nft"/>
                 <v-spacer />
                 <v-btn
                   color="secondary"
                   class="rounded-xl"
-                  align="center"
-                  justify="space-around"
                   v-on:click="fakeMetamaskPrompt"
-                  v-if="getExperienceValue(nft) === 100"
+                  v-if="getExperienceValue(nft) === 100 && $store.state.address"
                 >
-                  <span> Claim</span>
+                  <span> Claim </span>
                 </v-btn>
+                </v-row>
                 <v-spacer />
               </v-card>
             </template>
@@ -117,14 +120,12 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
         todos: []
       }
     },
-    mounted () {
-      axios
-        .get(process.env.VUE_APP_BASE_URL + 'ping')
-        .then(response => (this.info = response.data))
+    created () {
+      this.getTodos()
     },
     methods: {
       getTodos () {
-        if (this.$store.state.address !== '') {
+        // if (this.$store.state.address !== '') {
           const path = process.env.VUE_APP_BASE_URL + 'badges'
           axios.post(path, { wallet_address: this.$store.state.address })
             .then((res) => {
@@ -134,7 +135,6 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
               // eslint-disable-next-line
           console.error(error);
             })
-        }
       },
       getExperienceValue(nft){
         if (nft.conditions[0].rule === "null") {

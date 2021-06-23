@@ -64,8 +64,10 @@
           <v-spacer />
 
           <v-progress-linear
+            v-if="$store.state.address !== ''"
             :value="getExperienceValue(nft)"
             height="20"
+            class = "ma-1"
           > 
             <span v-if="getExperienceValue(nft) !== 100"> {{ nft.conditions[0].current + " / " + nft.conditions[0].target }} </span>
             <span v-else> 100% </span>
