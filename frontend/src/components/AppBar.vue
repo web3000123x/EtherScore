@@ -1,15 +1,15 @@
     <template>
     <v-app-bar
       app
-      color="black"
-      dark
+      color="background"
+      flat
     >
       <div class="d-flex align-center">
         <v-img
           alt="EtherScore Logo"
           class="shrink mr-2"
           contain
-          :src="require('@/assets/logo.png')"
+          :src="require('@/assets/etherscore_black_transparent.png')"
           transition="scale-transition"
           width="40"
         />
