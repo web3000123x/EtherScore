@@ -68,7 +68,7 @@
       >
         <template v-slot:activator="{ on, attrs }">
           <v-icon
-            color="white"
+            color="secondary"
             v-bind="attrs"
             v-on="on"
             v-on:click="copyAddress"

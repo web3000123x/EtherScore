@@ -6,15 +6,15 @@
   >
     <v-col class="text-center" cols="12">
       Copyright  &copy; {{ new Date().getFullYear() }} —
-      <img width="25px" src="../assets/etherscore_black_transparent.png">
+      <img width="32px" class="px-1 mb-n1" src="../assets/etherscore_black_transparent.png">
       <strong>EtherScore</strong>
       <v-spacer/>
       <div class="py-2 text-right">
         Powered By 
-        <img width="25px" src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010">
-        <img width="25px" src="https://cryptologos.cc/logos/the-graph-grt-logo.png?v=010">
-        <img width="25px" src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=010">
-        <img width="25px" src="https://cryptologos.cc/logos/compound-comp-logo.png?v=010">
+        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010">
+        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/the-graph-grt-logo.png?v=010">
+        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=010">
+        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/compound-comp-logo.png?v=010">
       </div>
     </v-col>
   </v-footer>
