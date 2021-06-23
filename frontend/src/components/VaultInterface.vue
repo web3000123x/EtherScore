@@ -20,7 +20,7 @@
           class="mx-primary"
           elevation="5"
           style="margin-top:20px; min-width:270px; border-radius: 20px;
-          padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+          border: 1px solid; color: white; font-weight: 500;
           opacity: 0.95;"
           color="background"
         >
@@ -73,10 +73,11 @@
           <v-spacer />
           <!-- TODO: Next slider max to replace with user ETH balance (or ETH staked) -->
 
-          <p class="black--text">{{ valueSubmitted }} ETH</p> 
+          <p class="black--text mb-1">{{ valueSubmitted }} ETH</p> 
           <v-slider
               v-model="valueSubmitted"
               color="secondary"
+              track-color="grey lighten-1"
               hint="ETH value"
               step="tickStep"
               max="1" 
@@ -84,7 +85,7 @@
           >
         <template v-slot:prepend>
           <v-icon
-            :color="color"
+            color="secondary"
             @click="decrement"
           >
             mdi-minus
@@ -93,7 +94,7 @@
 
         <template v-slot:append>
           <v-icon
-            :color="color"
+            color="secondary"
             @click="increment"
           >
             mdi-plus
@@ -105,7 +106,7 @@
 
           <v-btn
             color="secondary"
-            class="rounded-xl pa-5"
+            class="rounded-xl mt-0 mb-5 pa-5"
             v-on:click="fakeMetamaskPrompt"
           >
             <span> Confirm </span>
@@ -138,6 +139,15 @@
       increment () {
         this.valueSubmitted = this.valueSubmitted + this.tickStep
       },
+      fakeMetamaskPrompt(){
+        alert('This is a fake metamask prompt')
+      }
     },
   }
 </script>
+
+<style lang="scss">
+  .v-slider__track-container{
+    height: 10px !important;
+  }
+</style>
