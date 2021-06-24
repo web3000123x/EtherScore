@@ -7,7 +7,6 @@ $ npm install --save-dev truffle                    # Installing development fra
 $ npx truffle init                                  # Creating the project
 $ npm install --save-dev @openzeppelin/contracts    # Adding libraries
 $ npm install --save-dev ganache-cli                # Installing deployment tools
-$ npx ganache-cli --deterministic                   # Creating local accounts for testing purpose
 $ npm install --save-dev chai                       # Installing tools for automated tests
 $ npm install --save-dev @openzeppelin/test-helpers # Adding extra libraries for automated tests
 ```
@@ -18,20 +17,31 @@ $ cd <repo root>/contracts
 $ npx truffle compile
 ```
 
-## Deploy locally the smart contracts
+## Deploy locally the smart contracts (will compile the code)
 ```bash
 $ cd <repo root>/contracts
 $ npx truffle migrate --network development
 ```
 The network is running here: `http://localhost:8545`
 
+```bash
+$ npx ganache-cli --deterministic                   # Creating local accounts for testing purpose (it will lock the terminal)
+```
+
 ## Interact locally with the smart contracts
+You can interact manually:
 ```bash
 $ cd <repo root>/contracts
 $ npx truffle console --network development
 truffle(development)> await ... .deployed()
 truffle(development)> await ... .store(...)                # sending transaction
 truffle(development)> await ()... .retrieve()).toString()  # querying state
+```
+... or using the available scripts:
+```bash
+$ cd <repo root>/contracts
+$ npx truffle exec --network development ./scripts/badgedefinition_example.js
+$ npx truffle exec --network development ./scripts/badgetoken_example.js
 ```
 
 ## Run automated tests
@@ -60,4 +70,6 @@ See [Deploying and interacting with smart contracts](https://docs.openzeppelin.c
 
 See [Writing automated smart contract tests](https://docs.openzeppelin.com/learn/writing-automated-tests).
 
-See [Truffle's homepage](https://www.trufflesuite.com/truffle).
+See [Solidity documentation](https://docs.soliditylang.org/en/develop/index.html).
+
+See [Truffle homepage](https://www.trufflesuite.com/truffle).
