@@ -18,14 +18,17 @@ $ npx truffle compile
 ```
 
 ## Deploy locally the smart contracts (will compile the code)
+First launch a blank local blockchain with prebuild accounts:
 ```bash
 $ cd <repo root>/contracts
-$ npx truffle migrate --network development
+$ npx ganache-cli --deterministic                   # Creating local accounts for testing purpose (it will lock the terminal)
 ```
 The network is running here: `http://localhost:8545`
 
+... then you can build and deploy the contracts:
 ```bash
-$ npx ganache-cli --deterministic                   # Creating local accounts for testing purpose (it will lock the terminal)
+$ cd <repo root>/contracts
+$ npx truffle migrate --network development         # Build & deploy the contract 
 ```
 
 ## Interact locally with the smart contracts
@@ -37,6 +40,7 @@ truffle(development)> await ... .deployed()
 truffle(development)> await ... .store(...)                # sending transaction
 truffle(development)> await ()... .retrieve()).toString()  # querying state
 ```
+
 ... or using the available scripts:
 ```bash
 $ cd <repo root>/contracts
