@@ -10,12 +10,9 @@
 
     <v-row>
       <h1 class="display-2 black--text ma-3">
-        Badge Factory
+        Create new Badge Definition
       </h1>
       <br/>
-      <v-spacer></v-spacer>
-
-      <metamask-chip/>
       <p class="subheading font-weight-regular black--text ma-2">
         No-code NFT badge model issuing
       </p>
@@ -31,16 +28,16 @@
               <v-col cols="4">
                 <v-subheader>Badge Name</v-subheader>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="8">
                 <v-text-field
                   v-model="name"
-                  :counter="10"
                   :rules="nameRules"
                   label="Badge Name"
                   required
                   outlined
                   shaped
                   class="mb-n6"
+                  :hint="hintName"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -57,12 +54,32 @@
                     rows="3"
                     row-height="25"
                     shaped
+                    class="mb-n12"
+                    :hint="hintDescription"
                   ></v-textarea>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="4">
+                <v-subheader>Image</v-subheader>
+              </v-col>
+              <v-col cols="8">
+                <v-file-input
+                  accept="image/png, image/jpeg, image/bmp"
+                  placeholder="Pick an image"
+                  prepend-icon="mdi-camera"
+                  class="mt-0"
+                  label="Image"
+                ></v-file-input>
               </v-col>
             </v-row>
 
             <v-divider/>
 
+            <p class="subheading font-weight-regular black--text ma-2" align="left"> 
+              NFT minting conditions 
+            </p>
             <v-row>
                 <v-select
                   v-model="protocol"
@@ -74,6 +91,8 @@
                   shaped
                   class="mt-5"
                   dense
+                  style="max-width:300px;"
+                  :hint="hintProtocol"
                 ></v-select>
                 <v-spacer/>
                 <v-select
@@ -86,6 +105,8 @@
                   shaped
                   class="mt-5"
                   dense
+                  style="max-width:300px;"
+                  :hint="hintIndexer"
                 ></v-select>
             </v-row>
 
@@ -99,7 +120,8 @@
                 outlined
                 shaped
                 dense
-                style="max-width:150px;"
+                style="max-width:200px;"
+                :hint="hintMetric"
               ></v-select>
                 <v-spacer/>
               <v-select
@@ -112,22 +134,23 @@
                 shaped
                 dense
                 style="max-width:150px;"
+                :hint="hintOperator"
               ></v-select>
               <v-spacer/>
               <v-text-field
                 v-model="value"
-                :counter="10"
                 label="Value"
+                :rules="[v => !!v || 'Value is required']"
                 required
                 outlined
                 shaped
                 dense
                 style="max-width:100px;"
+                :hint="hintValue"
               ></v-text-field>
               <v-spacer/>
               <v-btn
-                class="mx-3"
-                fab
+                class="ma-3"
                 dark
                 color="indigo"
                 @click="updateConditions"
@@ -135,16 +158,21 @@
               <v-icon dark>
                 mdi-plus
               </v-icon>
-            </v-btn>
-            <p class="black--text">
-            {{ conditions }}
-            </p>
+              Add condition
+            </v-btn>            
             </v-row>
-            
+            <div class="green--text ma-1" v-if="showConditions" align="left">
+              The badge will be claimable to users of : <br/>
+              <p v-for="condition in conditions" :key="condition.name">
+               {{ condition[0] }} having {{ condition[1] }} {{ condition[2] }} {{ condition[3] }}
+              </p>
+            </div>
+
             <v-switch
               v-model="checkbox2"
               label="NFT transfer authorized"
               required
+              color="indigo"
             ></v-switch>
 
             <v-btn
@@ -163,20 +191,19 @@
 </template>
 
 <script>
-  import MetamaskChip from './MetamaskChip.vue'
 
   export default {
     name: 'BadgeFactory',
-    components: {
-      MetamaskChip,
-    },
     data: () => ({
       valid: true,
+      name: '',
+      descritption: '',
       value: '',
       protocol: '',
       metric: '',
+      indexer: '',
       operator: '',
-      conditions: '',
+      conditions: [],
       nameRules: [
         v => !!v || 'Badge Name is required',
         v => (v && v.length <= 10) || 'Badge Name must be less than 10 characters',
@@ -201,6 +228,14 @@
         '<=',
       ],
       checkbox2: true,
+      hintName: "The name of your badge (example: \"Uniswapper boy\")",
+      hintDescription: "The description of your badge (example: \"The best badge ever\")",
+      hintProtocol: "Users that interact with",
+      hintIndexer: "The data source used as Oracle",
+      hintMetric: "The metric concerned by the condition",
+      hintOperator: "The operator such as equal, greater/less than",
+      hintValue: "The number ....",
+      showConditions: false,
     }),
 
     methods: {
@@ -208,8 +243,11 @@
         this.$refs.form.validate()
       },
       updateConditions () {
-        this.conditions = " The badge will be claimable to users of " + this.protocol 
-          + " who have a " + this.metric + " "+ this.operator+" "+ this.value
+        if (this.validate()) {
+          this.showConditions = true
+          this.conditions.push([this.protocol, this.metric, this.operator,this.value])
+          console.log(this.conditions)
+        }
       }
     },
   }
