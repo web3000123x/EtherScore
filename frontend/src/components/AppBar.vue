@@ -29,6 +29,17 @@
       </v-btn>
 
       <v-spacer></v-spacer>
+      <v-btn
+        class="rounded-xl pa-5"
+        min-width="0"
+        text
+        to="/badge-factory"
+      >
+        Badge Factory
+        <v-icon>mdi-factory</v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
 
       <v-btn
         class="rounded-xl pa-5"
