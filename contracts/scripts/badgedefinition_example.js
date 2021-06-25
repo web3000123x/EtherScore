@@ -130,6 +130,9 @@ module.exports = async function main(callback) {
 
       // ERC721Enumerable functions
       //function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool)
+      //ERC721
+      value = await badgeDefinitionFactory.supportsInterface('0x80ac58cd');
+      console.log("supportsInterface: Does the contract support IERC721?", value.toString());
 
       //function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256)
       // (badge 1)

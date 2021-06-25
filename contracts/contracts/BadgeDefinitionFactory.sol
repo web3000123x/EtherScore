@@ -2,24 +2,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "./BadgeDefinition.sol";
+import "./BadgeFactory.sol";
 
-contract BadgeDefinitionFactory is ERC721Enumerable {
+contract BadgeDefinitionFactory is BadgeFactory {
 
     event NewBadgeDefinition(uint badgeDefinitionId, string name, string description, string[] _tags, string _image_uri);
     
-    // Badge attribution condition structure
-    struct BadgeAttributionCondition {
-        uint badgeDefinitionId;
-        string description;
-        string indexer;     // service indexing the data (possible values: "thegraph")
-        string protocol;    // subgraph on the indexer to use (possible values: "uniswap", "compound")
-        string query;       // the query to run
-        string operator;    // operator allowing to compare the query return
-        string condition;   // value to compare with the query result
-    }
-
     // Badge definition structure
     struct BadgeDefinition {
         string name;
@@ -33,26 +21,17 @@ contract BadgeDefinitionFactory is ERC721Enumerable {
     // Storage of the badge definitionsg
     BadgeDefinition[] private _badgeDefinitions;
     BadgeAttributionCondition[] private _badgeAttributionConditions;
-    mapping(uint => uint[]) private _conditionList;
+    mapping(uint => uint[]) private _attributionConditionList;
     string badgeDefinitionSymbol = "BDE";
 
     constructor() ERC721("BadgeDefinition", badgeDefinitionSymbol) {
     }
 
     /**
-    * @dev Throws if called by any account other than the owner.
-    */
-    modifier onlyOwnerOf(uint _badgeDefinitionId) {
-        require(_exists(_badgeDefinitionId), "ERC721: attempt to modify nonexistent token");
-        require(_isApprovedOrOwner(_msgSender(), _badgeDefinitionId), "ERC721: modifier caller is not owner nor approved");
-        _;
-    }
-
-    /**
     * @dev Throws if called on an already published token.
     */
     modifier onlyUnpublishedBadgeDefinition(uint _badgeDefinitionId) {
-        require(_badgeDefinitions[_badgeDefinitionId].isPublished == false, string(abi.encodePacked(badgeDefinitionSymbol, ": attempt to modify an already published token (now read-only)")));
+        require(!(_badgeDefinitions[_badgeDefinitionId].isPublished), string(abi.encodePacked(badgeDefinitionSymbol, ": attempt to modify an already published token (now read-only)")));
         _;
     }
 
@@ -60,7 +39,7 @@ contract BadgeDefinitionFactory is ERC721Enumerable {
     * @dev Throws if called on an unpublished token.
     */
     modifier onlyPublishedBadgeDefinition(uint _badgeDefinitionId) {
-        require(_badgeDefinitions[_badgeDefinitionId].isPublished == true, string(abi.encodePacked(badgeDefinitionSymbol, ": attempt to use an unpublished token (it has to be published first)")));
+        require(_badgeDefinitions[_badgeDefinitionId].isPublished, string(abi.encodePacked(badgeDefinitionSymbol, ": attempt to use an unpublished token (it has to be published first)")));
         _;
     }
 
@@ -74,17 +53,31 @@ contract BadgeDefinitionFactory is ERC721Enumerable {
     }
 
     function addBadgeAttributionCondition(uint _badgeDefinitionId, string memory _description, string memory _indexer, string memory _protocol, string memory _query, string memory _operator, string memory _condition) public onlyOwnerOf(_badgeDefinitionId) onlyUnpublishedBadgeDefinition(_badgeDefinitionId) {
+        require(_attributionConditionList[_badgeDefinitionId].length <= maxNumberOfAttributionConditions, string(abi.encodePacked(badgeDefinitionSymbol, ": maximum number of conditions for the token already reached")));
         _badgeAttributionConditions.push(BadgeAttributionCondition({ badgeDefinitionId:_badgeDefinitionId, description: _description, indexer: _indexer, protocol: _protocol, query: _query, operator: _operator, condition: _condition}));
         uint badgeAttributionConditionId = _badgeAttributionConditions.length - 1;
 
         //Updating the relationship with its parent
-        _conditionList[_badgeDefinitionId].push(badgeAttributionConditionId);
+        _attributionConditionList[_badgeDefinitionId].push(badgeAttributionConditionId);
     }
 
     function publishBadgeDefinition(uint _badgeDefinitionId) public onlyOwnerOf(_badgeDefinitionId) onlyUnpublishedBadgeDefinition(_badgeDefinitionId) {
         _badgeDefinitions[_badgeDefinitionId].isPublished = true;
 
         emit NewBadgeDefinition(_badgeDefinitionId, _badgeDefinitions[_badgeDefinitionId].name, _badgeDefinitions[_badgeDefinitionId].description, _badgeDefinitions[_badgeDefinitionId].tags, _badgeDefinitions[_badgeDefinitionId].image_uri);
+    } 
+
+    function getBadgeDefinitionAttributionCondition(uint _badgeDefinitionId) public view existingBadge(_badgeDefinitionId) onlyPublishedBadgeDefinition(_badgeDefinitionId) returns (uint _numberOfAttributionCondition, BadgeAttributionCondition[maxNumberOfAttributionConditions] memory _badgeDefinitionAttributionConditions) {
+        _numberOfAttributionCondition = _attributionConditionList[_badgeDefinitionId].length;
+        for(uint i=0; i < _numberOfAttributionCondition; i++){
+            _badgeDefinitionAttributionConditions[i] = _badgeAttributionConditions[_attributionConditionList[_badgeDefinitionId][i]];
+        }
+
+        return (_numberOfAttributionCondition, _badgeDefinitionAttributionConditions);
+    }
+
+    function isBadgeTransferable(uint _badgeDefinitionId) public view onlyPublishedBadgeDefinition(_badgeDefinitionId) returns (bool _isTransferable) {
+        return _badgeDefinitions[_badgeDefinitionId].isTransferable;
     } 
 
     /**
