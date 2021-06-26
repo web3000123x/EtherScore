@@ -80,7 +80,18 @@
                   <span v-if="getExperienceValue(nft) !== 100"> {{ Math.round(nft.conditions[0].current) + " / " + nft.conditions[0].target }} </span>
                   <span v-else> 100% </span>
                 </v-progress-linear>
+                <v-spacer/>
+                  <p 
+                    align="center"
+                    justify="center"
+                    class="black--text ml-n6 pa-0 mb-0" 
+                    style="width: 200px;"
+                  > 
+                    {{ nft.conditions[0].description }} <br/>
+                     on {{ nft.conditions[0].protocol +" ("+ nft.conditions[0].target + ")" }}
+                  </p>
                 <v-spacer />
+
                 <br/>
                 <v-row>
                 <badge-dialog-detail :nft="nft"/>

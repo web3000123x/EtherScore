@@ -70,7 +70,15 @@
                   style="padding-top: 5px"
                   class="mx-auto"
                 />
-                <br/>
+                <p 
+                  align="center"
+                  justify="center"
+                  class="black--text ml-n6 pa-0" 
+                  style="width: 200px;"
+                > 
+                  {{ nft.conditions[0].description }} <br/>
+                    on {{ nft.conditions[0].protocol +" ("+ nft.conditions[0].target + ")" }}
+                </p>
                 <v-row>
                 <badge-dialog-detail :nft="nft"/>
                 <v-spacer />
