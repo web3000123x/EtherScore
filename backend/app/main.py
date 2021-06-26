@@ -1,4 +1,4 @@
-import os, datetime
+import os, datetime, re
 from types import new_class
 from fastapi import Request, FastAPI, status
 from gql import gql, Client
@@ -89,6 +89,21 @@ class UniswapMaxSwapAmount(TheGraph):
         return badge_passport
 
 
+class CompoundNeverLiquidated(TheGraph):
+    """
+    Get compound user, number of liquitated
+    """
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2'
+        query = '/app/queries/compound_never_liquidated.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+    
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+
+
 badge0 = {
     "id" : 0,
     "name": "Badge Number 0",
@@ -141,7 +156,7 @@ async def ping():
 @app.post(path="/badges", status_code=status.HTTP_200_OK)
 async def badges(request: Request):
     """
-    Retrieve badges and their status for a given address (ex 0x1F653f9d3dD5a0fc61aFC6969e4f07e32Bf4CDe0)
+    Retrieve badges and their status for a given address (ex "0x1F653f9d3dD5a0fc61aFC6969e4f07e32Bf4CDe0")
     """
     content = await request.json()
     try:
@@ -150,22 +165,25 @@ async def badges(request: Request):
     except:
         return "error parsing POST request"
 
-    if wallet_address == "null":
+    pat = re.compile(r"^0x[a-fA-F0-9]{40}$")
+    if pat.match(wallet_address):
+
+        print("User address: " + wallet_address)
+
+        badges_passports = [] # a passport is the definition + the customized information
+        for badge in badges_definitions:
+            # for every badge in the definition list
+            mytype = badge['type']
+            # create the right object (UniswapTransaction) associated to the badge, to set and verify conditions
+            current = create_class(mytype)
+            # add it to the passports list
+            badges_passports.append(current.generate_badge_passport(wallet_address, badge))
+        return badges_passports
+
+    else:
         # return badge definitions
         return badges_definitions
-    
-    # Else, there is a wallet address
-    print("User address: " + wallet_address)
 
-    badges_passports = [] # a passport is the definition + the customized information
-    for badge in badges_definitions:
-        # for every badge in the definition list
-        mytype = badge['type']
-        # create the right object (UniswapTransaction) associated to the badge, to set and verify conditions
-        current = create_class(mytype)
-        # add it to the passports list
-        badges_passports.append(current.generate_badge_passport(wallet_address, badge))
-    return badges_passports
 
 # Retrieve badges held by the address
 @app.post(path="/badges-definition", status_code=status.HTTP_200_OK)
