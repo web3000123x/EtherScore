@@ -50,15 +50,12 @@ class UniswapTransactions(TheGraph):
     
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
-        number_of_swaps = len(self.run({'address': address})['swaps'])
-        conditions = [{
-            "protocol": "uniswap",
-            "description": "number of swaps",
-            "target": 50,
-            "operator": "gte",
-            "current": number_of_swaps
-        }]
-        badge_passport["conditions"] = conditions
+        number_of_swaps = 0
+        res = self.run({'address': address})
+        if len(res['swaps']) > 0:
+            number_of_swaps = len(res['swaps'])
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = number_of_swaps
         #badge_passport["owned"] = get
         return badge_passport
 
@@ -76,15 +73,12 @@ class UniswapMaxSwapAmount(TheGraph):
     
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
-        max_amount = self.run({'address': address})['swaps'][0]['amountUSD']
-        conditions = [{
-            "protocol": "uniswap",
-            "description": "max amount swapped",
-            "target": 500,
-            "operator": "gte",
-            "current": max_amount
-        }]
-        badge_passport["conditions"] = conditions
+        max_amount = 0
+        res = self.run({'address': address})
+        if len(res['swaps']) > 0:
+            max_amount = res['swaps'][0]['amountUSD']
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = max_amount
         #badge_passport["owned"] = get
         return badge_passport
 
@@ -113,6 +107,13 @@ badge0 = {
     "owner" : "0x0003893947437",
     "tags": ["uniswap", "experience"],
     "image_url": "https://i.redd.it/rq36kl1xjxr01.png",
+    "conditions" : 
+        [{
+        "protocol": "uniswap",
+        "description": "number of swaps",
+        "target": 50,
+        "operator": "gte"
+        }]
 }
 
 badge1 = {
@@ -125,6 +126,13 @@ badge1 = {
     "address" : "0x9888888888999999999",
     "tags": ["uniswap", "transaction"],
     "image_url": "https://i.redd.it/rq36kl1xjxr01.png",
+    "conditions":
+        [{
+        "protocol": "uniswap",
+        "description": "max amount swapped",
+        "target": 500,
+        "operator": "gte"
+        }]
 }
 
 

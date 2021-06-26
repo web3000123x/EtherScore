@@ -73,11 +73,11 @@
                 <v-spacer />
                 <v-progress-linear
                   :value="getExperienceValue(nft)"
-                  v-if="$store.state.address !== ''"
+                  v-if="$store.state.address !== '' && nft.conditions !== undefined"
                   class = "mt-1"
                   height="20"
                 > 
-                  <span v-if="getExperienceValue(nft) !== 100"> {{ nft.conditions[0].current + " / " + nft.conditions[0].target }} </span>
+                  <span v-if="getExperienceValue(nft) !== 100"> {{ Math.round(nft.conditions[0].current) + " / " + nft.conditions[0].target }} </span>
                   <span v-else> 100% </span>
                 </v-progress-linear>
                 <v-spacer />
@@ -104,6 +104,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import axios from 'axios'
 import MetamaskChip from '../components/MetamaskChip.vue'
 import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
@@ -114,33 +115,36 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
       MetamaskChip,
       BadgeDialogDetail
     },
+    computed: mapState(['address']),
     data () {
       return {
         info: null,
-        todos: []
+        todos: [],
       }
     },
     created () {
       this.getTodos()
     },
+    watch: {
+      address() {
+      this.getTodos()
+    }},
     methods: {
       getTodos () {
-        // if (this.$store.state.address !== '') {
-          const path = process.env.VUE_APP_BASE_URL + 'badges'
-          axios.post(path, { wallet_address: this.$store.state.address })
-            .then((res) => {
-              this.todos = res.data
-            })
-            .catch((error) => {
-              // eslint-disable-next-line
-          console.error(error);
-            })
+        const path = process.env.VUE_APP_BASE_URL + 'badges'
+        axios.post(path, { wallet_address: String(this.address) })
+          .then((res) => {
+            this.todos = res.data
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.error(error);
+          })
       },
       getExperienceValue(nft){
-        if (nft.conditions[0].rule === "null") {
-          return 100
+        if (nft.conditions !== undefined) {
+          return (100 * nft.conditions[0].current/nft.conditions[0].target)
         }
-        return (100 * nft.conditions[0].current/nft.conditions[0].target)
       },
       fakeMetamaskPrompt(){
         alert('This is a fake metamask prompt')

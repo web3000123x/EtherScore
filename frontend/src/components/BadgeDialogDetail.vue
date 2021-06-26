@@ -57,6 +57,7 @@
             class="text-subtitle-1 font-weight-light black"
             style="margin: 5px"
             outlined
+            v-if="nft.conditions !== undefined"
           >
             Conditions
           </v-chip>
@@ -64,7 +65,7 @@
           <v-spacer />
 
           <v-progress-linear
-            v-if="$store.state.address !== ''"
+            v-if="$store.state.address !== '' && nft.conditions !== undefined"
             :value="getExperienceValue(nft)"
             height="20"
             class = "ma-1"
@@ -114,15 +115,14 @@ import axios from 'axios'
             })
             .catch((error) => {
               // eslint-disable-next-line
-          console.error(error);
+              console.error(error);
             })
         }
       },
       getExperienceValue(nft){
-        if (nft.conditions[0].rule === "null") {
-          return 100
+        if (nft.conditions !== undefined) {
+          return (100 * nft.conditions[0].current/nft.conditions[0].target)
         }
-        return (100 * nft.conditions[0].current/nft.conditions[0].target)
       },
       fakeMetamaskPrompt(){
         alert('This is a fake metamask prompt')
