@@ -163,7 +163,7 @@
             </v-row>
             <div class="green--text ma-1" v-if="showConditions" align="left">
               The badge will be claimable to users of : <br/>
-              <p v-for="condition in conditions" :key="condition.name">
+              <p v-for="condition in conditions" :key="condition.protocol">
                {{ condition[0] }} having {{ condition[1] }} {{ condition[2] }} {{ condition[3] }}
               </p>
             </div>
@@ -243,10 +243,9 @@
         this.$refs.form.validate()
       },
       updateConditions () {
-        if (this.validate()) {
+        if (this.$refs.form.validate()) {
           this.showConditions = true
           this.conditions.push([this.protocol, this.metric, this.operator,this.value])
-          console.log(this.conditions)
         }
       }
     },
