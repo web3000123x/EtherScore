@@ -65,7 +65,7 @@
           <v-spacer />
 
           <v-progress-linear
-            v-if="$store.state.address !== '' && nft.conditions !== undefined"
+            v-if="$store.state.address !== '' && nft.conditions[0].current !== undefined"
             :value="getExperienceValue(nft)"
             height="20"
             class = "ma-1"
