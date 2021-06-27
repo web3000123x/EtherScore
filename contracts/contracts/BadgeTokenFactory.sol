@@ -4,55 +4,107 @@ pragma solidity ^0.8.0;
 
 import "./BadgeDefinitionFactory.sol";
 
+/**
+ * @title BadgeTokenFactory
+ * @author Geoffrey Garcia
+ * @notice Contract to use to mint and to transfer (if applicable based on associated BadgeDefinition) BadgeToken that are ERC721 tokens.
+ * @dev The BadgeTokenFactory contract provides basic structures, functions & modifiers that allows to manage BadgeToken as ERC721 token.
+ */
 contract BadgeTokenFactory is BadgeFactory {
 
-    event NewBadgeToken(uint badgeDefinitionId, string name, string description, string[] _tags, string _image_uri);
+    /**
+    * @notice Event emitted after a BadgeToken minting.
+    * @dev Event emitted after a BadgeToken minting.
+    * @param _badgeTokenId The ID of the BadgeToken.
+    * @param _originalOwner The Ethereum address of the user that has minted the token.
+    */
+    event NewBadgeToken(uint _badgeTokenId, address _originalOwner);
 
     // Badge token structure
     struct BadgeToken {
-        uint badgeDefinitionId;
-        address originalOwner;
+        uint badgeDefinitionId; // the ID of BadgeDefinition associated to this BadgeToken
+        address originalOwner;  // the Ethereum address of the user that has minted the token
     }
 
     // Storage of the badge definitionsg
-    BadgeToken[] private _badgeTokens;
-    mapping(uint => uint[]) private _conditionList;
-    string badgeTokenSymbol = "BTO";
+    BadgeToken[] private _badgeTokens;                              // BadgeToken storage
+    mapping(address => mapping(uint => uint)) private _ownedBadges; // List of BadgeToken IDs per owner per BadgeDefinition
+    string badgeTokenSymbol = "BTO";                                // Symbol of the ERC721 tokens of the BadgeToken
 
+    // Reference to the BadgeDefinitionFactory contract allowing to manage BadgeDefinition
     BadgeDefinitionFactory badgeDefinitionFactory;
 
-    constructor(address badgeDefinitionFactoryAddress) ERC721("BadgeToken", badgeTokenSymbol) {
-        badgeDefinitionFactory = BadgeDefinitionFactory(badgeDefinitionFactoryAddress);
+    /**
+    * @dev See {ERC721-constructor}.
+    * @param _badgeDefinitionFactoryAddress The Ethereum address of the BadgeDefinitionFactory contract allowing to manage BadgeDefinition.
+    */
+    constructor(address _badgeDefinitionFactoryAddress) ERC721("BadgeToken", badgeTokenSymbol) {
+        // Linking this contract with the already deployed one BadgeDefinitionFactory
+        badgeDefinitionFactory = BadgeDefinitionFactory(_badgeDefinitionFactoryAddress);
     }
 
+    /**
+    * @notice Function to mint a BadgeToken as ERC721 tokens.
+    * @dev Creates & store a BadgeToken.
+    * @param _badgeDefinitionId The ID of BadgeDefinition associated to this BadgeToken.
+    * @return _badgeTokenId The ID of the new BadgeToken.
+    */
     function createBadgeDefinition(uint _badgeDefinitionId) public returns (uint _badgeTokenId) {
+        // Asserting the user has not a token of the same kind already & fullfill the conditions to get one
+        require(_ownedBadges[_msgSender()][_badgeDefinitionId] == 0, string(abi.encodePacked(badgeTokenSymbol, ": badge already owned")));
         require(_assessAttributionCondition(_badgeDefinitionId), string(abi.encodePacked(badgeTokenSymbol, ": attempt to mint a token without fullfilling the attribution conditions to get it")));
         
+        // Storing the BadgeToken
         _badgeTokens.push(BadgeToken({ badgeDefinitionId: _badgeDefinitionId, originalOwner: _msgSender()}));
+        
+        // Getting the ID of the new BadgeToken
         uint badgeTokenId = _badgeTokens.length - 1;
 
+        // Add the badge to the ones owned by the user
+        _ownedBadges[_msgSender()][_badgeDefinitionId] = badgeTokenId;
+
+        // Minting the BadgeToken
         _safeMint(_msgSender(), badgeTokenId);
+
+        // Emit the appropriate event
+        emit NewBadgeToken(badgeTokenId, _msgSender());
 
         return badgeTokenId;
     }
 
-    function _assessAttributionCondition(uint _badgeDefinitionId) private view returns (bool) {
-        bool res = true;
+    /**
+    * @notice Function to test if the badge produced using a BadgeDefinition can be mint.
+    * @dev Check if the conditions to mint the badge are met.
+    * @param _badgeDefinitionId The ID of BadgeDefinition associated to this BadgeToken.
+    * @return _evaluationResult The result of the test.
+    */
+    function _assessAttributionCondition(uint _badgeDefinitionId) private view returns (bool _evaluationResult) {
+        _evaluationResult = true;
 
-        //TODO: check for the list conditions
+        // Get the BadgeAttributionCondition list associated to this BadgeDefinition
         BadgeAttributionCondition[maxNumberOfAttributionConditions] memory badgeAttributionCondition;
         uint numberOfConditions = 0;
         (numberOfConditions, badgeAttributionCondition) = badgeDefinitionFactory.getBadgeDefinitionAttributionCondition(_badgeDefinitionId);
-        for(uint i=0; (i < numberOfConditions) && (res == true); i++){
+        
+        // Check for every condition in the list
+        for(uint i=0; (i < numberOfConditions) && (_evaluationResult == true); i++){
 
+            // Evalute if the condition is met
             string memory queryResult = _runQuery(badgeAttributionCondition[i].indexer, badgeAttributionCondition[i].protocol, badgeAttributionCondition[i].query);
-            res = _evaluateCondition(queryResult, badgeAttributionCondition[i].operator, badgeAttributionCondition[i].condition);
+            _evaluationResult = _evaluateCondition(queryResult, badgeAttributionCondition[i].operator, badgeAttributionCondition[i].condition);
         } 
 
-        return res;
+        return _evaluationResult;
     }
 
-
+    /**
+    * @notice Function to run a query.
+    * @dev Run a query in order to be able to check if a condition to mint a badge is met.
+    * @param _indexer The service indexing the data (possible values: "thegraph").
+    * @param _protocol The set/subgraph on the indexer to use (possible values: "uniswap", "compound").
+    * @param _query The query to run.
+    * @return _queryResult The result of the query.
+    */
     function _runQuery(string memory _indexer, string memory _protocol, string memory _query) private view returns (string memory _queryResult) {
         _queryResult = "";
 
@@ -61,7 +113,15 @@ contract BadgeTokenFactory is BadgeFactory {
         return _queryResult;
     }
 
-    function _evaluateCondition(string memory _indexer, string memory _operator, string memory _condition) private view returns (bool _evaluationResult) {
+    /**
+    * @notice Function to evaluate a condition.
+    * @dev Check if a condition to mint a badge is met.
+    * @param _queryResult The result of the query.
+    * @param _operator The operator allowing to compare the query return.
+    * @param _condition The value to compare with the query result.
+    * @return _evaluationResult The result of the test.
+    */
+    function _evaluateCondition(string memory _queryResult, string memory _operator, string memory _condition) private view returns (bool _evaluationResult) {
         _evaluationResult = true;
 
         //TODO: run the query
@@ -70,150 +130,35 @@ contract BadgeTokenFactory is BadgeFactory {
     }
 
     /**
-     * @dev Transfers `tokenId` from `from` to `to`.
-     *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _transfer(address from, address to, uint256 tokenId) internal override {
-        //TODO: check if the token can be transferred
-        require(badgeDefinitionFactory.isBadgeTransferable(tokenId), string(abi.encodePacked(badgeTokenSymbol, ": this token is bind to its original owner", _badgeTokens[tokenId].originalOwner)));
+    * @notice Function to test if the badge produced using a BadgeDefinition can be mint.
+    * @dev Check if the conditions to mint the badge are met.
+    * @param _owner The Ethereum address of the user.
+    * @param _badgeDefinitionId The ID of BadgeDefinition.
+    * @return _evaluationResult The result of the test.
+    */
+    function doesOwnBadgeFromGivenDefinition(address _owner, uint _badgeDefinitionId) public view returns (bool _evaluationResult) {
+        _evaluationResult = true;
 
-        super._transfer(from, to, tokenId);
+        // Check for a BadgeToken potentially owned by this user associated to the BadgeDefinition
+        if(_ownedBadges[_owner][_badgeDefinitionId] == 0){
+            _evaluationResult = false;
+        } 
+
+        return _evaluationResult;
     }
 
-    // /**
-    //  * @dev See {IERC721Metadata-tokenURI}.
-    //  */
-    // function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    //     require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+    /**
+    * @notice Function to transfer a token (if applicable).
+    * @dev Transfers `tokenId` from `from` to `to`.
+    * @param from The Ethereum address of the user that own the token.
+    * @param to The Ethereum address of the user that could receive the token.
+    * @param tokenId The ID of the BadgeToken.
+    */
+    function _transfer(address from, address to, uint256 tokenId) internal override {
+        // Check if the token can be transfered
+        require(badgeDefinitionFactory.isBadgeTransferable(tokenId), string(abi.encodePacked(badgeTokenSymbol, ": this token is bind to its original owner", _badgeTokens[tokenId].originalOwner)));
 
-    //     return _badgeDefinitions[tokenId].image_uri;
-    // }
-
-    // /**
-    //  * @dev See {IERC721-setApprovalForAll}.
-    //  */
-    // function setApprovalForAll(address operator, bool approved) public {
-    //     require(operator != _msgSender(), "ERC721: approve to caller");
-
-    //     _operatorApprovals[_msgSender()][operator] = approved;
-    //     emit ApprovalForAll(_msgSender(), operator, approved);
-    // }
-
-    // /**
-    //  * @dev See {IERC721-isApprovedForAll}.
-    //  */
-    // function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
-    //     return _operatorApprovals[owner][operator];
-    // }
-
-    // /**
-    //  * @dev See {IERC721-safeTransferFrom}.
-    //  */
-    // function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
-    //     safeTransferFrom(from, to, tokenId, "");
-    // }
-
-    // /**
-    //  * @dev See {IERC721-safeTransferFrom}.
-    //  */
-    // function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public virtual override {
-    //     require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
-    //     _safeTransfer(from, to, tokenId, _data);
-    // }
-
-    // /**
-    //  * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-    //  * are aware of the ERC721 protocol to prevent tokens from being forever locked.
-    //  *
-    //  * `_data` is additional data, it has no specified format and it is sent in call to `to`.
-    //  *
-    //  * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
-    //  * implement alternative mechanisms to perform token transfer, such as signature-based.
-    //  *
-    //  * Requirements:
-    //  *
-    //  * - `from` cannot be the zero address.
-    //  * - `to` cannot be the zero address.
-    //  * - `tokenId` token must exist and be owned by `from`.
-    //  * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-    //  *
-    //  * Emits a {Transfer} event.
-    //  */
-    // function _safeTransfer(address from, address to, uint256 tokenId, bytes memory _data) internal virtual {
-    //     _transfer(from, to, tokenId);
-    //     require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
-    // }
-
-    // /**
-    //  * @dev Returns whether `tokenId` exists.
-    //  *
-    //  * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
-    //  *
-    //  * Tokens start existing when they are minted (`_mint`),
-    //  * and stop existing when they are burned (`_burn`).
-    //  */
-    // function _exists(uint256 tokenId) internal view virtual returns (bool) {
-    //     return _owners[tokenId] != address(0);
-    // }
-
-    // /**
-    //  * @dev Returns whether `spender` is allowed to manage `tokenId`.
-    //  *
-    //  * Requirements:
-    //  *
-    //  * - `tokenId` must exist.
-    //  */
-    // function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-    //     require(_exists(tokenId), "ERC721: operator query for nonexistent token");
-    //     address owner = ERC721.ownerOf(tokenId);
-    //     return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
-    // }
-
-    // /**
-    //  * @dev Destroys `tokenId`.
-    //  * The approval is cleared when the token is burned.
-    //  *
-    //  * Requirements:
-    //  *
-    //  * - `tokenId` must exist.
-    //  *
-    //  * Emits a {Transfer} event.
-    //  */
-    // function _burn(uint256 tokenId) internal virtual {
-    //     address owner = ERC721.ownerOf(tokenId);
-
-    //     _beforeTokenTransfer(owner, address(0), tokenId);
-
-    //     // Clear approvals
-    //     _approve(address(0), tokenId);
-
-    //     _balances[owner] -= 1;
-    //     delete _owners[tokenId];
-
-    //     emit Transfer(owner, address(0), tokenId);
-    // }
-
-    // /**
-    //  * @dev Hook that is called before any token transfer. This includes minting
-    //  * and burning.
-    //  *
-    //  * Calling conditions:
-    //  *
-    //  * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-    //  * transferred to `to`.
-    //  * - When `from` is zero, `tokenId` will be minted for `to`.
-    //  * - When `to` is zero, ``from``'s `tokenId` will be burned.
-    //  * - `from` cannot be the zero address.
-    //  * - `to` cannot be the zero address.
-    //  *
-    //  * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-    //  */
-    // function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
+        // Transfer the token (if applicable)
+        super._transfer(from, to, tokenId);
+    }
 }
