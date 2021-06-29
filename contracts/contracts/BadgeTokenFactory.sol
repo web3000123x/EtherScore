@@ -20,6 +20,15 @@ contract BadgeTokenFactory is BadgeFactory {
     */
     event NewBadgeToken(uint _badgeTokenId, address _originalOwner);
 
+    /**
+    * @notice Event emitted when the contract need the result of a query (requesting it to an oracle through this event).
+    * @dev Event emitted each time a condition has to be evaluated.
+    * @param _indexer The service indexing the data (possible values: "thegraph").
+    * @param _protocol The set/subgraph on the indexer to use (possible values: "uniswap", "compound").
+    * @param _query The query to run.
+    */
+    event NeedQueryRun(string _indexer, string _protocol, string _query);
+
     // Badge token structure
     struct BadgeToken {
         uint badgeDefinitionId; // the ID of BadgeDefinition associated to this BadgeToken
@@ -38,7 +47,7 @@ contract BadgeTokenFactory is BadgeFactory {
     * @dev See {ERC721-constructor}.
     * @param _badgeDefinitionFactoryAddress The Ethereum address of the BadgeDefinitionFactory contract allowing to manage BadgeDefinition.
     */
-    constructor(address _badgeDefinitionFactoryAddress) ERC721("BadgeToken", badgeTokenSymbol) {
+    constructor(address _badgeDefinitionFactoryAddress) BadgeFactory("BadgeToken", badgeTokenSymbol) {
         // Linking this contract with the already deployed one BadgeDefinitionFactory
         badgeDefinitionFactory = BadgeDefinitionFactory(_badgeDefinitionFactoryAddress);
     }
@@ -49,16 +58,18 @@ contract BadgeTokenFactory is BadgeFactory {
     * @param _badgeDefinitionId The ID of BadgeDefinition associated to this BadgeToken.
     * @return _badgeTokenId The ID of the new BadgeToken.
     */
-    function createBadgeDefinition(uint _badgeDefinitionId) public returns (uint _badgeTokenId) {
+    function mintBadgeToken(uint _badgeDefinitionId) public returns (uint _badgeTokenId) {
         // Asserting the user has not a token of the same kind already & fullfill the conditions to get one
         require(_ownedBadges[_msgSender()][_badgeDefinitionId] == 0, string(abi.encodePacked(badgeTokenSymbol, ": badge already owned")));
+        //TODO: check orignalOwner instead?
         require(_assessAttributionCondition(_badgeDefinitionId), string(abi.encodePacked(badgeTokenSymbol, ": attempt to mint a token without fullfilling the attribution conditions to get it")));
         
         // Storing the BadgeToken
         _badgeTokens.push(BadgeToken({ badgeDefinitionId: _badgeDefinitionId, originalOwner: _msgSender()}));
         
         // Getting the ID of the new BadgeToken
-        uint badgeTokenId = _badgeTokens.length - 1;
+        // uint badgeTokenId = _badgeTokens.length - 1;
+        uint badgeTokenId = _badgeTokens.length;
 
         // Add the badge to the ones owned by the user
         _ownedBadges[_msgSender()][_badgeDefinitionId] = badgeTokenId;
@@ -155,10 +166,29 @@ contract BadgeTokenFactory is BadgeFactory {
     * @param tokenId The ID of the BadgeToken.
     */
     function _transfer(address from, address to, uint256 tokenId) internal override {
+        uint tokenIdex = tokenId - 1;
+
         // Check if the token can be transfered
-        require(badgeDefinitionFactory.isBadgeTransferable(tokenId), string(abi.encodePacked(badgeTokenSymbol, ": this token is bind to its original owner", _badgeTokens[tokenId].originalOwner)));
+        require(badgeDefinitionFactory.isBadgeTransferable(_badgeTokens[tokenIdex].badgeDefinitionId), string(abi.encodePacked(badgeTokenSymbol, ": this token is bind to its original owner", _badgeTokens[tokenIdex].originalOwner)));
 
         // Transfer the token (if applicable)
         super._transfer(from, to, tokenId);
+    }
+
+    /**
+    * @notice Function to get the URI associated to a token.
+    * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+    * @param tokenId The ID of the BadgeToken.
+    * @return The result URI associated to the token.
+    */
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+
+        uint tokenIdex = tokenId - 1;
+        
+        string memory URI = badgeDefinitionFactory.tokenURI(_badgeTokens[tokenIdex].badgeDefinitionId);
+        return bytes(URI).length > 0
+            ? string(URI)
+            : '';
     }
 }

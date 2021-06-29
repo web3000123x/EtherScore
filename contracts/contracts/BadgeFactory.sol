@@ -26,6 +26,18 @@ abstract contract BadgeFactory is ERC721Enumerable {
     // Maximum number of conditions that can be associated to a single badge
     uint8 constant maxNumberOfAttributionConditions = 5;
 
+    // Badge base URI
+    string private _badgeBaseURI;
+
+    /**
+    * @dev See {ERC721-constructor}.
+    * @param _badgeName The badge name.
+    * @param _badgeSymbol The badge symbol.
+    */
+    constructor(string memory _badgeName, string memory _badgeSymbol) ERC721(_badgeName, _badgeSymbol) {
+        _setBaseURI("ipfs://");
+    }
+
     /**
     * @dev Throws if called by any account other than the owner.
     * @param _badgeId The ID of the Badge.
@@ -43,5 +55,21 @@ abstract contract BadgeFactory is ERC721Enumerable {
     modifier existingBadge(uint _badgeId) {
         require(_exists(_badgeId), "ERC721: attempt to modify nonexistent token");
         _;
+    }
+
+    /**
+     * @dev Base URI for computing {tokenURI}. Empty by default, can be overriden
+     * in child contracts.
+     */
+    function _baseURI() internal view override returns (string memory) {
+        return _badgeBaseURI;
+    }
+
+    /**
+     * @dev Base URI for computing {tokenURI}. Empty by default, can be overriden
+     * in child contracts.
+     */
+    function _setBaseURI(string memory baseURI_) private {
+        _badgeBaseURI = baseURI_;
     }
 }

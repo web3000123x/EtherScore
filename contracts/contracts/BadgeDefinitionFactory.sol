@@ -42,7 +42,7 @@ contract BadgeDefinitionFactory is BadgeFactory {
     /**
     * @dev See {ERC721-constructor}.
     */
-    constructor() ERC721("BadgeDefinition", badgeDefinitionSymbol) {
+    constructor() BadgeFactory("BadgeDefinition", badgeDefinitionSymbol) {
     }
 
     /**
@@ -151,7 +151,7 @@ contract BadgeDefinitionFactory is BadgeFactory {
     */
     function isBadgeTransferable(uint _badgeDefinitionId) public view onlyPublishedBadgeDefinition(_badgeDefinitionId) returns (bool _isTransferable) {
         return _badgeDefinitions[_badgeDefinitionId].isTransferable;
-    } 
+    }
 
     /**
     * @notice Function to get the URI associated to a token.
@@ -162,6 +162,9 @@ contract BadgeDefinitionFactory is BadgeFactory {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
-        return _badgeDefinitions[tokenId].image_uri;
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0
+            ? string(abi.encodePacked(baseURI, _badgeDefinitions[tokenId].image_uri))
+            : '';
     }
 }
