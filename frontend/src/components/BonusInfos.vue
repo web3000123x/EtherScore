@@ -1,13 +1,13 @@
 <template>
   <v-card
     elevation="15"
-    style="margin:0px; max-width:300px; min-height:450px; border-radius: 20px;
+    style="max-width:300px; min-height:450px; border-radius: 20px;
       padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
       opacity: 0.95;"
+    class="pa-5 lime lighten-5"
   >
-    <v-row class="text-center" align="center" justify="center">
     
-    <h1 class="display-2 black--text">
+    <h1 class="text-h3 black--text">
       Bonus
     </h1>
     <metamask-chip/>
@@ -83,7 +83,6 @@
 
       </v-list-item-action>
     </v-list-item>
-    </v-row>
     
   </v-card>
   

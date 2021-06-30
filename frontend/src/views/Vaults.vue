@@ -1,9 +1,14 @@
 <template>
-  <v-container >
-    <v-row class="text-center" align="center" justify="center">
-        <vault-interface :vaultTitle='"Supply"'/>
+  <v-container>
+    <v-row class="text-center" align="center" justify="center" style="margin:50px">
         <bonus-infos/>
-        <vault-interface :vaultTitle='"Borrow"'/>
+        <v-spacer/>
+        <vault-interface :vaultTitle='"VIP Pool"'/>
+        <v-spacer/>
+        <v-col>
+        <display-bonuses :bonusTitle='"IDOs"' :bonusDescription='"Join premium IDOs whitelist"' :bonusButtonLabel='"Join whitelist"' />
+        <display-bonuses :bonusTitle='"Airdrops"' :bonusDescription='"Claim exclusive airdrops"' :bonusButtonLabel='"Claim airdrop"' />
+        </v-col>
     </v-row>
   </v-container>
 </template>
@@ -12,12 +17,14 @@
 import axios from 'axios'
 import BonusInfos from '../components/BonusInfos.vue'
 import VaultInterface from '../components/VaultInterface.vue'
+import DisplayBonuses from '../components/DisplayBonuses.vue'
 
   export default {
     name: 'Vaults',
     components: {
       BonusInfos,
-      VaultInterface
+      VaultInterface,
+      DisplayBonuses
     },
     data () {
       return {
