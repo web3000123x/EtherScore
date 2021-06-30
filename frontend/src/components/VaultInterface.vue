@@ -1,14 +1,18 @@
 <template>
   <v-card
     elevation="15"
-    style="margin:50px; min-height:450px; border-radius: 20px;
+    style="min-height:450px; border-radius: 20px;
     padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="pa-10"
+    class="pa-5 px-10 lime lighten-5"
   >
-    <h1 class="display-2 black--text">
+    <h1 class="text-h3 black--text">
       {{ vaultTitle }}
     </h1>
+    <br/>
+    <p class="subheading font-weight-regular black--text mt-n3">
+      Access private DeFi pools
+    </p>
 
     <v-spacer></v-spacer>
 

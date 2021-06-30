@@ -20,8 +20,8 @@ const routes = [
     component: Badges
   },
   {
-    path: '/vaults',
-    name: 'Vaults',
+    path: '/bonus',
+    name: 'Bonus',
     component: Vaults
   },
   {

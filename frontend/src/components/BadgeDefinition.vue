@@ -181,7 +181,7 @@
               class="mr-4"
               @click="validate"
             >
-              Validate
+              Deploy Badge Model
             </v-btn>
           </v-form>
         </template>

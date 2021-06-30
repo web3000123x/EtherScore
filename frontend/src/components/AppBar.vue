@@ -57,10 +57,10 @@
         class="rounded-xl pa-5"
         min-width="0"
         text
-        to="/vaults"
+        to="/bonus"
       >
-        Vaults
-        <v-icon>mdi-treasure-chest</v-icon>
+        Bonus
+        <v-icon>mdi-gift</v-icon>
       </v-btn>
 
       <v-spacer></v-spacer>

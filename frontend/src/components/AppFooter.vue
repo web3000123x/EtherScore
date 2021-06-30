@@ -3,6 +3,7 @@
     color="background"
     flat
     padless
+    class="mt-10"
   >
     <v-col class="text-center" cols="12">
       Copyright  &copy; {{ new Date().getFullYear() }} —
@@ -13,8 +14,6 @@
         Powered By 
         <img width="30px" class="px-1" src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010">
         <img width="30px" class="px-1" src="https://cryptologos.cc/logos/the-graph-grt-logo.png?v=010">
-        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=010">
-        <img width="30px" class="px-1" src="https://cryptologos.cc/logos/compound-comp-logo.png?v=010">
       </div>
     </v-col>
   </v-footer>
