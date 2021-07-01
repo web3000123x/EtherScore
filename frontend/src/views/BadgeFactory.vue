@@ -24,22 +24,12 @@
           
 
           <v-spacer></v-spacer>
-          <!-- <v-btn
-            color="secondary"
-            class="ma-1 white--text rounded-xl  "
-            align="center"
-            justify="space-around"
-            v-on:click="getTodos()"
-            v-if="this.$store.state.address !== ''"
-            
-          >
-            <span> Scan address</span>
-          </v-btn> -->
 
           <v-row
             align="center"
             justify="center"
           >
+            <p class="black--text mt-15" v-if="address === ''"> Connect Metamask to see your Badge Model NFTs </p>
            <template
               v-for="nft in this.todos"
               justify="center"
@@ -108,14 +98,14 @@ import BadgeDefinition from '../components/BadgeDefinition'
       BadgeDefinition,
     },
     computed: mapState(['address']),
+    created(){
+      this.getTodos()
+    },
     data () {
       return {
         info: null,
         todos: []
       }
-    },
-    created () {
-      this.getTodos()
     },
     watch: {
       address() {
@@ -123,7 +113,7 @@ import BadgeDefinition from '../components/BadgeDefinition'
     }},
     methods: {
       getTodos () {
-        // if (this.$store.state.address !== '') {
+        if (this.$store.state.address !== '') {
           const path = process.env.VUE_APP_BASE_URL + 'badges-definition'
           axios.post(path, { wallet_address: this.$store.state.address })
             .then((res) => {
@@ -133,6 +123,7 @@ import BadgeDefinition from '../components/BadgeDefinition'
               // eslint-disable-next-line
           console.error(error);
             })
+        }
       },
       getExperienceValue(nft){
         if (nft.conditions[0].rule === "null") {
