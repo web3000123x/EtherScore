@@ -1,12 +1,12 @@
 <template>
   <v-container >
-    <v-row class="text-center" align="center" justify="center">
+    <v-row class="text-center">
         <v-card
           elevation="15"
-          style="margin:10px; max-width:350px; min-height:450px; border-radius: 20px;
+          style="max-width:350px; border-radius: 20px;
            padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
            opacity: 0.95;"
-          class="pa-10"
+          class="pa-10 mt-15"
         >
           
           <h1 class="display-2 black--text">
@@ -54,12 +54,13 @@
                   {{ nft.name }}
                 </v-chip>
                 <v-spacer />
+                                <v-avatar
+                  width=100px
+                  height=100px>
                 <v-img
                   :src="nft.image_url"
-                  width=100px
-                  style="padding-top: 5px"
-                  class="mx-auto"
                 />
+                </v-avatar>
                 <p 
                   align="center"
                   justify="center"

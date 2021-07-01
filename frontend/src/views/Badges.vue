@@ -1,12 +1,12 @@
 <template>
   <v-container >
-    <v-row class="text-center" align="center" justify="center">
+    <v-row class="text-center">
         <v-card
           elevation="15"
-          style="margin:50px; max-width:550px; min-height:450px; border-radius: 20px;
+          style="min-width:1200px; min-height:450px; border-radius: 20px;
            padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
            opacity: 0.95;"
-          class="pa-10"
+          class="pa-10 mt-15"
         >
           <v-row>
           <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
@@ -36,7 +36,6 @@
           </v-btn> -->
 
           <v-row
-            align="center"
             justify="center"
           >
            <template
@@ -47,7 +46,7 @@
                 :key="nft.id"
                 class="mx-primary"
                 elevation="5"
-                style="margin: 10px ;margin-top:20px; max-width:200px; border-radius: 20px;
+                style="margin: 10px ;margin-top:20px; max-width:350px; border-radius: 20px;
                 padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
                 opacity: 0.95;"
                 color="background"
@@ -56,55 +55,108 @@
               >
               <v-spacer />
                 <v-chip
-                  class="text-subtitle-1 font-weight-light black"
-                  style="margin: 5px"
+                  class="text-h5 font-weight-light black mb-5"
                   outlined
                 >
                   {{ nft.name }}
                 </v-chip>
                 <v-spacer />
+                <v-avatar
+                  width=120px
+                  height=120px>
                 <v-img
                   :src="nft.image_url"
-                  width=100px
-                  style="padding-top: 5px"
-                  class="mx-auto"
                 />
+                </v-avatar>
 
                 <v-spacer />
-                <v-progress-linear
-                  :value="getExperienceValue(nft)"
-                  v-if="$store.state.address !== '' && nft.conditions !== undefined"
-                  class = "mt-1"
-                  height="20"
-                > 
-                  <span v-if="getExperienceValue(nft) !== 100"> {{ Math.round(nft.conditions[0].current) + " / " + nft.conditions[0].target }} </span>
-                  <span v-else> 100% </span>
-                </v-progress-linear>
                 <v-spacer/>
                   <p 
                     align="center"
                     justify="center"
-                    class="black--text ml-n6 pa-0 mb-0" 
-                    style="width: 200px;"
+                    class="black--text mt-3" 
                   > 
-                    {{ nft.conditions[0].description }} <br/>
-                     on {{ nft.conditions[0].protocol }}
+                    {{ nft.description }}
                   </p>
-                <v-spacer />
-
+                <v-spacer/>
                 <br/>
-                <v-row>
-                <badge-dialog-detail :nft="nft"/>
-                <v-spacer />
+                <span class="black--text"> Conditions: </span>
+
+                <v-list-item
+                  v-for="condition in nft.conditions"
+                  :key="condition.description"
+                  class="ma-0 pa-0"
+                >
+                  <v-list-item-content align="left">
+                    <v-list-item-title v-text="nft.issuer"></v-list-item-title>
+                    <v-list-item-subtitle 
+                      v-text="condition.description + ' ' + condition.operator + ' ' + condition.target"
+                    >
+                    </v-list-item-subtitle>
+                    <v-progress-linear
+                      :value="getExperienceValue(condition)"
+                      v-if="address !== ''"
+                      height="20"
+                    > 
+                      <span v-if="getExperienceValue(condition) !== 100 && condition.target !== 0"> 
+                        {{ "You: " + Math.round(nft.conditions[0].current) + " / " + nft.conditions[0].target }} 
+                      </span>
+                      <span v-else-if="getExperienceValue(condition) !== 100 && condition.target == 0"> 
+                        {{ "You: " + Math.round(nft.conditions[0].current) }} 
+                      </span>
+                      <span v-else> Condition validated ! </span>
+                    </v-progress-linear>
+                  </v-list-item-content>
+
+                  <v-list-item-action>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            color="grey lighten-1"
+                            v-bind="attrs"
+                            v-on="on"
+                          >
+                            mdi-information
+                          </v-icon>
+                        </template>
+                        <span>More informations</span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            v-if="getExperienceValue(condition) !== 100"
+                            color="secondary"
+                            v-bind="attrs"
+                            v-on="on"
+                          >
+                            mdi-checkbox-blank-outline
+                          </v-icon>
+                          <v-icon
+                            v-else
+                            color="green"
+                            v-bind="attrs"
+                            v-on="on"
+                          >
+                            mdi-checkbox-marked-outline
+                          </v-icon>
+                        </template>
+                      </v-tooltip>
+
+                  </v-list-item-action>
+                </v-list-item>
+
+                <v-card-actions>
+                <badge-dialog-detail :nft="nft" class="rounded-xl ma-2"/>
                 <v-btn
                   color="secondary"
-                  class="rounded-xl"
+                  class="rounded-xl ma-3 ml-12"
+                  :disabled="!isClaimable(nft)"
                   v-on:click="fakeMetamaskPrompt"
-                  v-if="getExperienceValue(nft) === 100 && $store.state.address"
                 >
-                  <span> Claim </span>
+                  <span v-if="!isClaimable(nft)"> Not Claimable </span>
+                  <span v-else> Claim </span>
                 </v-btn>
-                </v-row>
+                </v-card-actions>
                 <v-spacer />
               </v-card>
             </template>
@@ -152,13 +204,35 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
             console.error(error);
           })
       },
-      getExperienceValue(nft){
-        if (nft.conditions !== undefined) {
-          return (100 * nft.conditions[0].current/nft.conditions[0].target)
+      getExperienceValue(condition){
+        if (condition !== undefined) {
+          if (condition.operator == ">") {
+            if (condition.target == 0 && condition.current > 0) {
+              return 100
+            }
+            if (condition.target == 0 && condition.current == 0) {
+              return 0
+            }
+            return (100 * condition.current/condition.target)
+          }
+          if (condition.operator == "==") {
+            if (condition.target == condition.current) {
+              return 100
+            }
+          }
+          return 0
         }
       },
       fakeMetamaskPrompt(){
         alert('This is a fake metamask prompt')
+      },
+      isClaimable(nft){
+        for (var condition in nft.conditions) {
+          if (this.getExperienceValue(condition) !== 100) {
+            return false
+          }
+        }
+        return true
       }
   }
   }

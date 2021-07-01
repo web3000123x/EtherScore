@@ -1,11 +1,11 @@
 <template>
-    <v-row class="text-center" align="center" justify="center">
+    <v-row class="text-center" justify="center">
   <v-card
     elevation="15"
-    style="margin:50px; min-height:450px; max-width:700px; border-radius: 20px;
+    style="max-width:700px; max-height: 800px; border-radius: 20px;
     padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="pa-10"
+    class="pa-10 mt-15"
   >
 
     <v-row>
