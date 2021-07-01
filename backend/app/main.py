@@ -112,48 +112,126 @@ class CompoundNeverLiquidated(TheGraph):
     
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
+        nb_liquidations = None
+        sumBorrowed = None
+        res = self.run({'address': address})
+        if res['account'] != None :
+            nb_liquidations = res['account']["countLiquidated"]
+            sumBorrowed = res['account']["totalBorrowValueInEth"]
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = sumBorrowed
+        badge_passport["conditions"][1]["current"] = nb_liquidations
+        #badge_passport["owned"] = get
+        return badge_passport
+
+class CompoundLiquidator(TheGraph):
+    """
+    Get compound user, number of liquitated
+    """
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2'
+        query = '/app/queries/compound_liquidator.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+    
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb_liquidations = None
+        res = self.run({'address': address})
+        if res['account'] != None :
+            nb_liquidations = res['account']["countLiquidator"]
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb_liquidations
+        #badge_passport["owned"] = get
+        return badge_passport
 
 
 badge0 = {
     "id" : 0,
-    "name": "Badge Number 0",
+    "name": "Ze Trader",
     "type": "UniswapTransactions",
-    "description": "This is the badge 0 description",
+    "description": "Ze Trader is not a fan of centralized exchanges",
     "bonus": "5 collateral covered",
-    "owner" : "0x0003893947437",
+    "issuer" : "Uniswap",
+    "address" : "0x0003893947437",
     "tags": ["uniswap", "experience"],
-    "image_url": "https://i.redd.it/rq36kl1xjxr01.png",
+    "image_url": "https://imgflip.com/s/meme/Money-Money.jpg",
     "conditions" : 
         [{
         "protocol": "uniswap",
         "description": "number of swaps",
         "target": 50,
-        "operator": "gte"
+        "operator": ">="
         }]
 }
 
 badge1 = {
     "id" : 1,
-    "name": "Badge Number 1",
+    "name": "Ze Whale",
     "type": "UniswapMaxSwapAmount",
-    "description": "This is the badge 1 description",
+    "description": "Ze Whale is swimming in the DeFi ecosystem",
     "bonus": "another bonus",
     "issuer" : "Uniswap",
     "address" : "0x9888888888999999999",
     "tags": ["uniswap", "transaction"],
-    "image_url": "https://i.redd.it/rq36kl1xjxr01.png",
+    "image_url": "https://assets.newatlas.com/dims4/default/572b515/2147483647/strip/true/crop/1620x1080+150+0/resize/1200x800!/quality/90/?url=http%3A%2F%2Fnewatlas-brightspot.s3.amazonaws.com%2Farchive%2Fblue-whale-1.jpg",
     "conditions":
         [{
         "protocol": "uniswap",
         "description": "max amount swapped",
-        "target": 500,
-        "operator": "gte"
+        "target": 10000,
+        "operator": ">="
         }]
 }
 
+badge2 = {
+    "id" : 2,
+    "name": "Ze Borrower",
+    "type": "CompoundNeverLiquidated",
+    "description": "Ze Borrower does not fear margin calls",
+    "bonus": "another bonus",
+    "issuer" : "Compound",
+    "address" : "0x9888888888999999999",
+    "tags": ["compound", "liquidation"],
+    "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
+    "conditions":
+        [{
+        "protocol": "compound",
+        "description": "ETH value borrowed",
+        "target": 0,
+        "operator": ">"
+        },
+        {
+        "protocol": "compound",
+        "description": "number of liquidations",
+        "target": 0,
+        "operator": "=="
+        }]
+}
+
+badge3 = {
+    "id" : 3,
+    "name": "Ze Shark",
+    "type": "CompoundLiquidator",
+    "description": "Ze Shark is a sociopath sustaining the network",
+    "bonus": "another bonus",
+    "issuer" : "Compound",
+    "address" : "0x9888888888999999999",
+    "tags": ["compound", "liquidator"],
+    "image_url": "https://media.istockphoto.com/photos/shark-swimming-towards-the-surface-with-mouth-open-picture-id1160436763?b=1&k=6&m=1160436763&s=170667a&w=0&h=Vb8G06Wln7t1oDzdtKLTWh0LkCRT4n4wo2GD6RiBoX4=",
+    "conditions":
+        [
+        {
+        "protocol": "compound",
+        "description": "number of liquidations as liquidator",
+        "target": 10,
+        "operator": ">="
+        }]
+}
 
 # get badges definitions from smart contract
-badges_definitions = [badge0, badge1]
+badges_definitions = [badge0, badge1, badge2, badge3]
 
 
 ######################################
