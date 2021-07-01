@@ -1,8 +1,8 @@
 import os, datetime, re
-from types import new_class
+import requests
+import covalent_api
+from pprint import pprint
 from fastapi import Request, FastAPI, status
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
 from jinja2 import Template
 
 # configuration
@@ -12,29 +12,44 @@ PREFIX = "/api" # defined in the reverse proxy
 # instantiate the app
 app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
 
+# functon to create a new object from a var classname
 def create_class(classname):
     cls = globals()[classname]
     return cls()
+
+# function to use requests.post to make an API call to the subgraph url
+def run_query(url, q):
+    request = requests.post(url, '', json={'query': q})
+    if request.status_code == 200:
+        return request.json()
+    else:
+        raise Exception('Query failed. return code is {}. {}'.format(request.status_code, q))
+
 
 class TheGraph():
     """
     Base class to request TheGraph
     """
     def __init__(self, subgraph_url) -> None:
-        self.sample_transport = RequestsHTTPTransport(
-			url=subgraph_url,
-			verify=True,
-			retries=5,
-		)
-        self.client = client = Client(
-			transport=self.sample_transport
-		)
+        self.subgraph_url = subgraph_url
         self.template = ""
 
     def run(self, values={}):
-        rendered = Template(self.template).render(values)
-        query = gql(rendered)
-        return self.client.execute(query)
+        query = Template(self.template).render(values) 
+        return run_query(self.subgraph_url, query)['data']
+
+
+class Covalent():
+    """
+    Base class to request Covalent API
+    """
+    def __init__(self, ckey):
+        self.session = covalent_api.Session(api_key=ckey)
+        self.a = covalent_api.ClassA(self.session)
+
+    def get_holdings(self, wallet_address, skip_nft_metadata):
+        # check if he holds one of our nfts
+        return self.a.get_token_balances_for_address(1, wallet_address, True, skip_nft_metadata)
 
 
 class UniswapTransactions(TheGraph):
@@ -52,6 +67,7 @@ class UniswapTransactions(TheGraph):
         badge_passport = badge.copy()
         number_of_swaps = 0
         res = self.run({'address': address})
+        pprint(res)
         if len(res['swaps']) > 0:
             number_of_swaps = len(res['swaps'])
         # TODO: replace 0 indice in next line to use multiple conditions
@@ -172,14 +188,14 @@ async def badges(request: Request):
         wallet_address = str(content["wallet_address"])
     except:
         return "error parsing POST request"
-
+    defs = badges_definitions.copy()
     pat = re.compile(r"^0x[a-fA-F0-9]{40}$")
     if pat.match(wallet_address):
-
+        print("this is an adress")
         print("User address: " + wallet_address)
 
         badges_passports = [] # a passport is the definition + the customized information
-        for badge in badges_definitions:
+        for badge in defs:
             # for every badge in the definition list
             mytype = badge['type']
             # create the right object (UniswapTransaction) associated to the badge, to set and verify conditions
@@ -189,6 +205,8 @@ async def badges(request: Request):
         return badges_passports
 
     else:
+        print("------ no adress")
+        pprint(badges_definitions)
         # return badge definitions
         return badges_definitions
 
