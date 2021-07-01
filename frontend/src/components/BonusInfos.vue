@@ -1,7 +1,7 @@
 <template>
   <v-card
     elevation="15"
-    style="max-width:300px; min-height:450px; border-radius: 20px;
+    style="max-width:350px; min-height:450px; border-radius: 20px;
       padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
       opacity: 0.95;"
     class="pa-5 lime lighten-5"
@@ -22,21 +22,15 @@
       :key="badge.title"
       class="ma-0 pa-0"
     >
-      <v-list-item-avatar>
-        <v-icon
-          color="secondary"
-          align="left"
-          x-large
-        >
-          mdi-decagram
-        </v-icon>
+      <v-list-item-avatar width="70px" height="70px">
+         <img align="left" class="px-1" :src="badge.logo">
       </v-list-item-avatar>
 
       <v-list-item-content align="left">
         <v-list-item-title v-text="badge.title"></v-list-item-title>
 
         <v-list-item-subtitle 
-          v-if="badge.title === 'Badge 0 - Compound'" 
+          v-if="badge.title === 'Ze Trader' && address" 
           v-text="badge.subtitle"
           class="green--text"
         ></v-list-item-subtitle>
@@ -61,7 +55,7 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
-                v-if="badge.title === 'Badge 0 - Compound'"
+                v-if="badge.title === 'Ze Trader' && address"
                 color="green"
                 v-bind="attrs"
                 v-on="on"
@@ -77,7 +71,7 @@
                 mdi-checkbox-blank-outline
               </v-icon>
             </template>
-            <span v-if="badge.title === 'Badge 0 - Compound'">You have this NFT</span>
+            <span v-if="badge.title === 'Ze Trader' && address">You have this NFT</span>
             <span v-else>You do not have this NFT</span>
           </v-tooltip>
 
@@ -89,26 +83,31 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import MetamaskChip from '../components/MetamaskChip.vue'
   export default {
     name: 'BonusInfos',
     components: {
       MetamaskChip
     },
+    computed: mapState(['address']),
     data () {
       return {
         badges: [
         {
-          subtitle: '5 % collateral covered',
-          title: 'Badge 0 - Compound',
+          subtitle: 'Airdrops',
+          title: 'Ze Trader',
+          logo: 'https://imgflip.com/s/meme/Money-Money.jpg', 
         },
         {
           subtitle: '5 % collateral covered',
-          title: 'Badge 1 - Aave',
+          title: 'Ze Borrower',
+          logo: 'https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png', 
         },
         {
-          subtitle: '10% discount on minting',
-          title: 'Badge 3 - EtherScore',
+          subtitle: 'IDOs whitelisting',
+          title: 'Ze Shark',
+          logo: 'https://media.istockphoto.com/photos/shark-swimming-towards-the-surface-with-mouth-open-picture-id1160436763?b=1&k=6&m=1160436763&s=170667a&w=0&h=Vb8G06Wln7t1oDzdtKLTWh0LkCRT4n4wo2GD6RiBoX4=', 
         }]
       }
     },

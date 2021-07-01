@@ -88,7 +88,7 @@
                     style="width: 200px;"
                   > 
                     {{ nft.conditions[0].description }} <br/>
-                     on {{ nft.conditions[0].protocol +" ("+ nft.conditions[0].target + ")" }}
+                     on {{ nft.conditions[0].protocol }}
                   </p>
                 <v-spacer />
 

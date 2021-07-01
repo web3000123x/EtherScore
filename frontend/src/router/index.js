@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Badges from '../views/Badges.vue'
-import Vaults from '../views/Vaults.vue'
+import Bonus from '../views/Bonus.vue'
 import About from '../views/About.vue'
 import BadgeFactory from '../views/BadgeFactory.vue'
 
@@ -22,7 +22,7 @@ const routes = [
   {
     path: '/bonus',
     name: 'Bonus',
-    component: Vaults
+    component: Bonus
   },
   {
     path: '/badge-factory',

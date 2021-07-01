@@ -20,7 +20,7 @@ import VaultInterface from '../components/VaultInterface.vue'
 import DisplayBonuses from '../components/DisplayBonuses.vue'
 
   export default {
-    name: 'Vaults',
+    name: 'Bonus',
     components: {
       BonusInfos,
       VaultInterface,
