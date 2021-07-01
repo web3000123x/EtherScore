@@ -1,9 +1,11 @@
-import os, datetime, re
+import os, datetime, re, time
 import requests
 import covalent_api
 from pprint import pprint
 from fastapi import Request, FastAPI, status
 from jinja2 import Template
+from web3 import Web3
+import json
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
@@ -11,6 +13,21 @@ PREFIX = "/api" # defined in the reverse proxy
 
 # instantiate the app
 app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
+
+time.sleep(20)
+
+### Smart contracts ###
+w3 = Web3(Web3.HTTPProvider('http://contracts:8545'))
+
+with open("abi/BadgeDefinitionFactory.json") as f:
+    abi_json = json.load(f)
+abi = abi_json["abi"]
+
+address = '0xCfEB869F69431e42cdB54A4F4f105C19C080A601'
+contract = w3.eth.contract(address=address, abi=abi)
+print(contract.functions.name().call())
+
+###############
 
 # functon to create a new object from a var classname
 def create_class(classname):

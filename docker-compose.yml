@@ -12,6 +12,10 @@ services:
     networks:
       - internal
     restart: always
+    links: 
+      - contracts
+    depends_on: 
+      - contracts
 
   #Frontend, relying on the backend for api calls
   frontend:
@@ -26,7 +30,20 @@ services:
     networks:
       - internal
 
+  contracts:
+    build:
+      context: ./contracts
+      dockerfile: Dockerfile
+    volumes:
+      - '/app/node_modules'
+    expose: 
+      - 8545
+    networks:
+      - internal
+    #command: ["sleep 20", "&&", "npx", "truffle", "migrate", "--network", "development"]
+    #command: ["sh","-c","sleep 15 && npx truffle migrate --network development"]
   #Reverse proxy routing the traffic to the right containers
+
   nginx:
     build:
       context: ./nginx
