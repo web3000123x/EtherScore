@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title BadgeFactory
@@ -10,7 +11,7 @@ import "../node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721En
  * @notice Implementation of ERC721 standard using OpenZeppelin library
  * @dev The BadgeFactory abstract contract provides basic structures & modifiers that simplify the implementation of BadgeDefinitionFactory & BadgeTokenFactory.
  */
-abstract contract BadgeFactory is ERC721Enumerable {
+abstract contract BadgeFactory is ERC721Enumerable, Ownable {
 
     // Badge attribution condition structure
     struct BadgeAttributionCondition {
