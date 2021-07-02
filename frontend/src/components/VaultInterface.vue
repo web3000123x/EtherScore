@@ -1,18 +1,19 @@
 <template>
   <v-card
     elevation="15"
-    style="min-height:450px; border-radius: 20px;
-    padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
+    style="max-height:460px; max-width:350px;border-radius: 20px;
+    padding: 1.4rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="pa-5 px-10 lime lighten-5"
+    class="lime lighten-5"
   >
-    <h1 class="text-h3 black--text">
-      {{ vaultTitle }}
-    </h1>
-    <br/>
-    <p class="subheading font-weight-regular black--text mt-n3">
-      Access private DeFi pools
-    </p>
+    <v-card-title>
+      <span class="text-h4 font-weight-light black--text">
+        Curated Pools
+      </span>
+      <p class="text-subtitle-1 font-weight-thin black--text" align="left">
+        Reserved to EtherScore badge holders
+      </p>
+    </v-card-title>
 
     <v-spacer></v-spacer>
 
@@ -77,7 +78,7 @@
           <v-spacer />
           <!-- TODO: Next slider max to replace with user ETH balance (or ETH staked) -->
 
-          <p class="black--text mb-1">{{ valueSubmitted }} ETH</p> 
+          <p class="black--text mb-1">{{ valueSubmitted.toFixed(2) }} ETH</p> 
           <v-slider
               v-model="valueSubmitted"
               color="secondary"

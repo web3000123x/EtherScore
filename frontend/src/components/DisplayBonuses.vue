@@ -1,29 +1,29 @@
 <template>
   <v-card
-    elevation="15"
-    style="max-height:220px; max-width:350px; border-radius: 20px;
+    elevation="25"
+    style="min-width:250px; border-radius: 20px;
     padding: 1.5rem;  border: 1px solid; font-weight: 500;
     opacity: 0.95;"
-    class="pa-5 lime lighten-5 mb-2"
+    class="pa-5 lime lighten-5 mb-7 mt-n2"
   >
-    <h1 class="text-h3 black--text">
-      {{ bonusTitle }}
-    </h1>
-    <br/>
-    <p class="subheading font-weight-regular black--text mt-n3">
-      {{ bonusDescription }}
-    </p>
+    <v-card-title>
+      <span class="text-h4 font-weight-light black--text">
+        {{ bonusTitle }}
+      </span>
+      <p class="text-subtitle-1 font-weight-thin black--text" align="left">
+        {{ bonusDescription }}
+      </p>
+    </v-card-title>
 
     <v-spacer></v-spacer>
 
     <v-row
-      align="center"
       justify="center"
     >
         <v-card
-          class="primary mb-10"
+          class="primary mb-1"
           elevation="5"
-          style="min-width:270px; border-radius: 20px;
+          style="border-radius: 20px;
           border: 1px solid; color: white; font-weight: 500;
           opacity: 0.95;"
           color="background"
