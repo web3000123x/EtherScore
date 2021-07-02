@@ -10,6 +10,14 @@ $ npm install --save-dev ganache-cli                # Installing deployment tool
 $ npm install --save-dev chai                       # Installing tools for automated tests
 $ npm install --save-dev @openzeppelin/test-helpers # Adding extra libraries for automated tests
 ```
+Additionnaly you can install a library to generate the documentation & use it:
+```bash
+$ cd <repo root>/contracts
+$ npm install solidity-docgen
+$ npm install -D solc-0.8@npm:solc@^0.8.0
+$ npx solidity-docgen --solc-module solc-0.8 -i ./contracts -o ./docs -t ./docs
+```
+... the documentation can be found in the [following directory](./docs)
 
 ## Compile the smart contracts
 ```bash
@@ -77,3 +85,5 @@ See [Writing automated smart contract tests](https://docs.openzeppelin.com/learn
 See [Solidity documentation](https://docs.soliditylang.org/en/develop/index.html).
 
 See [Truffle homepage](https://www.trufflesuite.com/truffle).
+
+See [How to document Solidity smart contracts with no sweat](https://medium.com/coinmonks/how-to-document-solidity-smart-contracts-with-no-sweat-e78936ede833).
