@@ -8,33 +8,25 @@
            opacity: 0.95;"
           class="pa-10 mt-15"
         >
+          <v-card-title>
           <v-row>
-          <h1 class="display-2 mt-n2 mb-8 mr-8 black--text">
+          <span class="display-2 font-weight-light black--text">
             Badges
-          </h1>
+          </span>
           <v-spacer></v-spacer>
           <metamask-chip/>
           </v-row>
-          
-          <p class="subheading font-weight-regular black--text">
-            Check your stats & mint as much NFTs as possible
+          </v-card-title>
+          <v-spacer></v-spacer>
+          <p class="text-h5 font-weight-thin black--text" align="left">
+            Check your stats & claim as much NFTs as possible
           </p>
+          
+
 
           
 
           <v-spacer></v-spacer>
-          <!-- <v-btn
-            color="secondary"
-            class="ma-1 white--text rounded-xl  "
-            align="center"
-            justify="space-around"
-            v-on:click="getTodos()"
-            v-if="this.$store.state.address !== ''"
-            
-          >
-            <span> Scan address</span>
-          </v-btn> -->
-
           <v-row
             justify="center"
           >
@@ -46,12 +38,10 @@
                 :key="nft.id"
                 class="mx-primary"
                 elevation="5"
-                style="margin: 10px ;margin-top:20px; max-width:350px; border-radius: 20px;
+                style="margin: 10px ;margin-top:20px; max-width:330px; max-height:500px; border-radius: 20px;
                 padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
                 opacity: 0.95;"
                 color="background"
-                align="center"
-                justify='center'
               >
               <v-spacer />
                 <v-chip
@@ -62,8 +52,8 @@
                 </v-chip>
                 <v-spacer />
                 <v-avatar
-                  width=120px
-                  height=120px>
+                  width=110px
+                  height=110px>
                 <v-img
                   :src="nft.image_url"
                 />
@@ -74,19 +64,23 @@
                   <p 
                     align="center"
                     justify="center"
-                    class="black--text mt-3" 
+                    class="black--text mt-3 font-italic" 
                   > 
                     {{ nft.description }}
                   </p>
                 <v-spacer/>
                 <br/>
-                <span class="black--text"> Conditions: </span>
+                <span class="text-subtitle-1 black--text"> Minting conditions: </span>
 
                 <v-list-item
                   v-for="condition in nft.conditions"
                   :key="condition.description"
                   class="ma-0 pa-0"
                 >
+                  <v-list-item-avatar>
+                     <img :src="getProtocolLogo(nft.issuer)">
+                  </v-list-item-avatar>
+
                   <v-list-item-content align="left">
                     <v-list-item-title v-text="nft.issuer"></v-list-item-title>
                     <v-list-item-subtitle 
@@ -99,10 +93,10 @@
                       height="20"
                     > 
                       <span v-if="getExperienceValue(condition) !== 100 && condition.target !== 0"> 
-                        {{ "You: " + Math.round(nft.conditions[0].current) + " / " + nft.conditions[0].target }} 
+                        {{ "You: " + Math.round(condition.current) + " / " + condition.target }} 
                       </span>
                       <span v-else-if="getExperienceValue(condition) !== 100 && condition.target == 0"> 
-                        {{ "You: " + Math.round(nft.conditions[0].current) }} 
+                        {{ "You: " + Math.round(condition.current) }} 
                       </span>
                       <span v-else> Condition validated ! </span>
                     </v-progress-linear>
@@ -146,10 +140,10 @@
                 </v-list-item>
 
                 <v-card-actions>
-                <badge-dialog-detail :nft="nft" class="rounded-xl ma-2"/>
+                <badge-dialog-detail :nft="nft" class="rounded-xl mr-15"/>
                 <v-btn
                   color="secondary"
-                  class="rounded-xl ma-3 ml-12"
+                  class="rounded-xl"
                   :disabled="!isClaimable(nft)"
                   v-on:click="fakeMetamaskPrompt"
                 >
@@ -157,7 +151,6 @@
                   <span v-else> Claim </span>
                 </v-btn>
                 </v-card-actions>
-                <v-spacer />
               </v-card>
             </template>
             </v-row>
@@ -219,6 +212,9 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
             if (condition.target == condition.current) {
               return 100
             }
+            if (condition.current == null && condition.target == 0) {
+              return 100
+            }
           }
           return 0
         }
@@ -233,6 +229,20 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
           }
         }
         return true
+      },
+      getProtocolLogo(protocol){
+        if (protocol == "Uniswap"){
+          return "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012"
+        }
+        if (protocol == "Compound"){
+          return "https://cryptologos.cc/logos/compound-comp-logo.png?v=012"
+        }
+        if (protocol == "Aave"){
+          return "https://cryptologos.cc/logos/aave-aave-logo.png?v=012"
+        }
+        if (protocol == "Maker"){
+          return "https://cryptologos.cc/logos/maker-mkr-logo.png?v=012"
+        }
       }
   }
   }

@@ -75,6 +75,29 @@ class UniswapTransactions(TheGraph):
         #badge_passport["owned"] = get
         return badge_passport
 
+class UniswapProvider(TheGraph):
+    """
+    Get Uniswap transactions for a given wallet address
+    """
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
+        query = '/app/queries/uniswap_provider.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+    
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = 0
+        res = self.run({'address': address})
+        pprint(res)
+        if len(res['mints']) > 0:
+            nb = len(res['mints'])
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
+
 
 class UniswapMaxSwapAmount(TheGraph):
     """
@@ -98,6 +121,31 @@ class UniswapMaxSwapAmount(TheGraph):
         #badge_passport["owned"] = get
         return badge_passport
 
+
+class AaveNeverLiquidated(TheGraph):
+    """
+    Get Aave user, number of liquidated positions
+    """
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2'
+        query = '/app/queries/aave_never_liquidated.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+    
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb_liquidations = None
+        sumBorrowed = None
+        res = self.run({'address': address})
+        if res['user'] != None :
+            nb_liquidations = len(res['user']["liquidationCallHistory"])
+            sumBorrowed = len(res['user']["borrowHistory"])
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = sumBorrowed
+        badge_passport["conditions"][1]["current"] = nb_liquidations
+        #badge_passport["owned"] = get
+        return badge_passport
 
 class CompoundNeverLiquidated(TheGraph):
     """
@@ -162,7 +210,7 @@ badge0 = {
         "protocol": "uniswap",
         "description": "number of swaps",
         "target": 50,
-        "operator": ">="
+        "operator": ">"
         }]
 }
 
@@ -181,7 +229,7 @@ badge1 = {
         "protocol": "uniswap",
         "description": "max amount swapped",
         "target": 10000,
-        "operator": ">="
+        "operator": ">"
         }]
 }
 
@@ -224,14 +272,58 @@ badge3 = {
         [
         {
         "protocol": "compound",
-        "description": "number of liquidations as liquidator",
+        "description": "Liquidate somebody",
         "target": 10,
-        "operator": ">="
+        "operator": ">"
+        }]
+}
+
+badge4 = {
+    "id" : 4,
+    "name": "Ze Borrower",
+    "type": "AaveNeverLiquidated",
+    "description": "Ze Borrower does not fear margin calls",
+    "bonus": "another bonus",
+    "issuer" : "Aave",
+    "address" : "0x9888888888999999999",
+    "tags": ["aave", "liquidation"],
+    "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
+    "conditions":
+        [{
+        "protocol": "aave",
+        "description": "ETH value borrowed",
+        "target": 0,
+        "operator": ">"
+        },
+        {
+        "protocol": "aave",
+        "description": "number of liquidations",
+        "target": 0,
+        "operator": "=="
+        }]
+}
+
+badge5 = {
+    "id" : 5,
+    "name": "Ze Provider",
+    "type": "UniswapProvider",
+    "description": "Ze Provider can provide you anything",
+    "bonus": "another bonus",
+    "issuer" : "Uniswap",
+    "address" : "0x9888888888999999999",
+    "tags": ["uniswap", "provider"],
+    "image_url": "https://i1.sndcdn.com/artworks-000665042284-8emjck-t500x500.jpg",
+    "conditions":
+        [{
+        "protocol": "uniswap",
+        "description": "provide liquidity",
+        "target": 5,
+        "operator": ">"
         }]
 }
 
 # get badges definitions from smart contract
-badges_definitions = [badge0, badge1, badge2, badge3]
+badges_definitions = [badge0, badge1, badge2, badge3, badge4, badge5]
 
 
 ######################################
