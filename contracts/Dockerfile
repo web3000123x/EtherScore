@@ -1,6 +1,5 @@
 FROM node:12.2.0-alpine
 WORKDIR /app
-COPY package.json .
 COPY contracts/ .
 RUN npm install --save-dev truffle
 RUN npx truffle init
