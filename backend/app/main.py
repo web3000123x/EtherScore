@@ -47,10 +47,26 @@ class Covalent():
         self.session = covalent_api.Session(api_key=ckey)
         self.a = covalent_api.ClassA(self.session)
 
-    def get_holdings(self, wallet_address, skip_nft_metadata):
+    def run(self, wallet_address):
         # check if he holds one of our nfts
-        return self.a.get_token_balances_for_address(1, wallet_address, True, skip_nft_metadata)
-
+        return self.a.get_token_balances_for_address('1', wallet_address, True, True)
+    
+class CovalentHasTokens(Covalent):
+    def __init__(self) -> None:
+        super().__init__("ckey_2000734ae6334c75b8b44b1466e:")
+            
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = 0
+        res = self.run(address)
+        print("COVALENT")
+        print(res)
+        if (res['data'] != None) and (res['data']['items'] != None):
+            nb = len(res['data']['items'])
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
 
 class UniswapTransactions(TheGraph):
     """
@@ -322,8 +338,27 @@ badge5 = {
         }]
 }
 
+badge6 = {
+    "id" : 6,
+    "name": "Ze Gourmand",
+    "type": "CovalentHasTokens",
+    "description": "Ze Gourmand always wants a new token",
+    "bonus": "another bonus",
+    "issuer" : "Ethereum",
+    "address" : "0x9888888888999999999",
+    "tags": ["ethereum", "tokens"],
+    "image_url": "https://www.meme-arsenal.com/memes/85c333e585429997b059f8f68293343f.jpg",
+    "conditions":
+        [{
+        "protocol": "ethereum",
+        "description": "has tokens",
+        "target": 10,
+        "operator": ">"
+        }]
+}
+
 # get badges definitions from smart contract
-badges_definitions = [badge0, badge1, badge2, badge3, badge4, badge5]
+badges_definitions = [badge0, badge1, badge2, badge3, badge4, badge5, badge6]
 
 
 ######################################

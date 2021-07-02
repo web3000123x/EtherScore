@@ -243,6 +243,9 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
         if (protocol == "Maker"){
           return "https://cryptologos.cc/logos/maker-mkr-logo.png?v=012"
         }
+        if (protocol == "Ethereum"){
+          return "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010"
+        }
       }
   }
   }
