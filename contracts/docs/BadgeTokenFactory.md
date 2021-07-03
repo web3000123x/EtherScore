@@ -3,12 +3,14 @@ The BadgeTokenFactory contract provides basic structures, functions & modifiers 
 # Functions:
 - [`constructor(address _badgeDefinitionFactoryAddress)`](#BadgeTokenFactory-constructor-address-)
 - [`requestBadgeTokenMinting(uint256 _badgeDefinitionId)`](#BadgeTokenFactory-requestBadgeTokenMinting-uint256-)
-- [`updateBadgeTokenMinting(uint256 _requestID, string _queryResult)`](#BadgeTokenFactory-updateBadgeTokenMinting-uint256-string-)
+- [`updateBadgeTokenMinting(bytes32 _requestID, string _queryResult)`](#BadgeTokenFactory-updateBadgeTokenMinting-bytes32-string-)
 - [`mintBadgeToken(uint256 _badgeDefinitionId)`](#BadgeTokenFactory-mintBadgeToken-uint256-)
 - [`doesOwnBadgeFromGivenDefinition(address _owner, uint256 _badgeDefinitionId)`](#BadgeTokenFactory-doesOwnBadgeFromGivenDefinition-address-uint256-)
 - [`tokenURI(uint256 tokenId)`](#BadgeTokenFactory-tokenURI-uint256-)
 
 # Events:
+- [`QueryRequest(bytes32 _requestID, string _indexer, string _protocol, string _query)`](#BadgeTokenFactory-QueryRequest-bytes32-string-string-string-)
+- [`QueryResultReceived(bytes32 _requestID, string _queryResult)`](#BadgeTokenFactory-QueryResultReceived-bytes32-string-)
 - [`BadgeTokenReady(address _caller, uint256 _badgeDefinitionId)`](#BadgeTokenFactory-BadgeTokenReady-address-uint256-)
 - [`NewBadgeToken(uint256 _badgeTokenId, address _originalOwner)`](#BadgeTokenFactory-NewBadgeToken-uint256-address-)
 
@@ -22,7 +24,7 @@ Creates & store a BadgeToken.
 
 ## Parameters:
 - `_badgeDefinitionId`: The ID of BadgeDefinition associated to this BadgeToken.
-# Function `updateBadgeTokenMinting(uint256 _requestID, string _queryResult)` {#BadgeTokenFactory-updateBadgeTokenMinting-uint256-string-}
+# Function `updateBadgeTokenMinting(bytes32 _requestID, string _queryResult)` {#BadgeTokenFactory-updateBadgeTokenMinting-bytes32-string-}
 Store the result of the query then ask for the Oracle to write it into the blockchain.
 
 ## Parameters:
@@ -56,6 +58,24 @@ Returns the Uniform Resource Identifier (URI) for `tokenId` token.
 ## Return Values:
 - The result URI associated to the token.
 
+# Event `QueryRequest(bytes32 _requestID, string _indexer, string _protocol, string _query)` {#BadgeTokenFactory-QueryRequest-bytes32-string-string-string-}
+Event emitted to request for a query to be run for BadgeToken minting.
+
+## Parameters:
+- `_requestID`: The ID of the query.
+
+- `_indexer`: The service indexing the data (possible values: "thegraph, "covalent").
+
+- `_protocol`: The set/subgraph on the indexer to use (possible values: "uniswap", "compound" ,"aave" ,"ethereum").
+
+- `_query`: The query to run.
+# Event `QueryResultReceived(bytes32 _requestID, string _queryResult)` {#BadgeTokenFactory-QueryResultReceived-bytes32-string-}
+Event emitted fter the query and its result have been record into the blockchain for BadgeToken minting.
+
+## Parameters:
+- `_requestID`: The ID of the query.
+
+- `_queryResult`: The result of the query.
 # Event `BadgeTokenReady(address _caller, uint256 _badgeDefinitionId)` {#BadgeTokenFactory-BadgeTokenReady-address-uint256-}
 Event emitted when a BadgeToken is ready to be minted.
 

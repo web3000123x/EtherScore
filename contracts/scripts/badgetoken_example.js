@@ -1,4 +1,6 @@
 // scripts/index2.js
+// var bigInt = require("big-integer");
+
 module.exports = async function main(callback) {
   try {
     // Retrieve accounts from the local node
@@ -10,12 +12,72 @@ module.exports = async function main(callback) {
     let badgeId2 = 1;
     let token_number = Math.ceil(Math.random() * 10000);
     let token_number2 = Math.ceil(Math.random() * 10000);
-    console.log("The 1st BadgeToken will be called token#" + token_number + " (will be user-bind)");
-    console.log("The 2nd BadgeToken will be called token#" + token_number2 + " (will be transferrable)");
+    console.log("The 1st BadgeToken will be called token#" + token_number + "(will be user-bind)");
+    console.log("The 2nd BadgeToken will be called token#" + token_number2 + "(will be transferrable)");
 
     // Set up a Truffle contract, representing our deployed BadgeTokenFactory instance
     const BadgeTokenFactory = artifacts.require("BadgeTokenFactory");
     const badgeTokenFactory = await BadgeTokenFactory.deployed();
+
+    // Call the requestBadgeTokenMinting function of the deployed BadgeTokenFactory contract
+    // (badge 1 - BadgeToken NOT transferrable)
+    await badgeTokenFactory.requestBadgeTokenMinting(badgeId, {from: owner_address});
+    console.log("requestBadgeTokenMinting: The user", owner_address, "ask to mint a token with BadgeDefinitionId", badgeId);
+    await badgeTokenFactory.getPastEvents( 'QueryRequest', { fromBlock: 'latest', toBlock: 'latest' } )
+    .then(function(events){
+        // lastBlock = events;
+        // requestID1_1 = web3.utils.hexToAscii(events[0]["returnValues"]["_requestID"]);
+        // requestID1_2 = web3.utils.hexToAscii(events[1]["returnValues"]["_requestID"]);
+        requestID1_1 = events[0]["returnValues"]["_requestID"];
+        requestID1_2 = events[1]["returnValues"]["_requestID"];
+    });
+
+    // console.log("requestBadgeTokenMinting: last block is", lastBlock);
+    console.log("requestBadgeTokenMinting: The query with ID", requestID1_1, "has been requested to be run");
+    console.log("requestBadgeTokenMinting: The query with ID", requestID1_2, "has been requested to be run");
+  
+    // (badge 2 - BadgeToken transferrable)
+    await badgeTokenFactory.requestBadgeTokenMinting(badgeId2, {from: owner2_address});
+    console.log("requestBadgeTokenMinting: The user", owner2_address, "ask to mint a token with BadgeDefinitionId", badgeId2);
+    
+    await badgeTokenFactory.getPastEvents( 'QueryRequest', { fromBlock: 'latest', toBlock: 'latest' } )
+    .then(function(events){
+        // requestID2_1 = web3.utils.hexToAscii(events[0]["returnValues"]["_requestID"]);
+        requestID2_1 = events[0]["returnValues"]["_requestID"];
+    });
+    console.log("requestBadgeTokenMinting: The query with ID", requestID2_1, "has been requested to be run");
+
+    // Call the updateBadgeTokenMinting function of the deployed BadgeTokenFactory contract
+    // (badge 1 - BadgeToken NOT transferrable)
+    await badgeTokenFactory.updateBadgeTokenMinting(requestID1_1, "51", {from: owner_address});
+    // let random = web3.utils.randomHex(32);
+    // console.log("lol:", random);
+    // await badgeTokenFactory.updateBadgeTokenMinting(random, "51", {from: owner_address});
+
+    await badgeTokenFactory.getPastEvents( 'QueryResultReceived', { fromBlock: 'latest', toBlock: 'latest' } )
+    .then(function(events){
+        // lastBlock = events;
+        // console.log("updateBadgeTokenMinting: last block is", lastBlock);
+        queryResult1_1 = events[0]["returnValues"]["_queryResult"];
+    }); 
+    console.log("updateBadgeTokenMinting: The new result of the query", requestID1_1, "is", queryResult1_1);
+
+    await badgeTokenFactory.updateBadgeTokenMinting(requestID1_2, "52", {from: owner_address});
+
+    await badgeTokenFactory.getPastEvents( 'QueryResultReceived', { fromBlock: 'latest', toBlock: 'latest' } )
+    .then(function(events){
+        queryResult1_2 = events[0]["returnValues"]["_queryResult"];
+    }); 
+    console.log("updateBadgeTokenMinting: The new result of the query", requestID1_2, "is", queryResult1_2);
+
+    // (badge 2 - BadgeToken transferrable)
+    await badgeTokenFactory.updateBadgeTokenMinting(requestID2_1, "55", {from: owner_address});
+    
+    await badgeTokenFactory.getPastEvents( 'QueryResultReceived', { fromBlock: 'latest', toBlock: 'latest' } )
+    .then(function(events){
+        queryResult2_1 = events[0]["returnValues"]["_queryResult"];
+    });
+    console.log("updateBadgeTokenMinting: The new result of the query", requestID2_1, "is", queryResult2_1);
 
     // Call the mintBadgeToken function of the deployed BadgeTokenFactory contract
     // (badge 1 - BadgeToken NOT transferrable)

@@ -17,6 +17,24 @@ contract BadgeTokenFactory is BadgeFactory {
     using Counters for Counters.Counter;
 
     /**
+    * @notice Event emitted to request for a query to be run.
+    * @dev Event emitted to request for a query to be run for BadgeToken minting.
+    * @param _requestID The ID of the query.
+    * @param _indexer The service indexing the data (possible values: "thegraph, "covalent").
+    * @param _protocol The set/subgraph on the indexer to use (possible values: "uniswap", "compound" ,"aave" ,"ethereum").
+    * @param _query The query to run.
+    */
+    event QueryRequest(bytes32 _requestID, string _indexer, string _protocol, string _query);
+
+    /**
+    * @notice Event emitted after the query and its result have been record into the blockchain.
+    * @dev Event emitted fter the query and its result have been record into the blockchain for BadgeToken minting.
+    * @param _requestID The ID of the query.
+    * @param _queryResult The result of the query.
+    */
+    event QueryResultReceived(bytes32 _requestID, string _queryResult);
+
+    /**
     * @notice Event emitted when a BadgeToken is ready to be minted.
     * @dev Event emitted when a BadgeToken is ready to be minted.
     * @param _caller The Ethereum address which has requested for the right to mint the token.
@@ -44,11 +62,11 @@ contract BadgeTokenFactory is BadgeFactory {
         address caller;                                // the Ethereum address which has requested for the query result
         uint badgeDefinitionId;                        // the ID of BadgeDefinition associated to the BadgeToken the user want to mint
         uint numberOfConditions;                       // the number of conditions that have to be evaluated through as many queries
-        mapping (uint => uint) _queryIndex;            // the IDs of the queries
-        mapping (uint => bool) _pendingQueryStatus;    // the current status of the queries (true if pending)
-        mapping (uint => string) _queryResult;         // the results of the queries (usable only if associated _pendingQueryStatus value is false)
-        mapping (uint => string) _evaluationOperator;  // the operator allowing to compare the query return
-        mapping (uint => string) _evaluationCondition; // the value to compare with the query result
+        mapping (uint => bytes32) _queryIndex;            // the IDs of the queries
+        mapping (bytes32 => bool) _pendingQueryStatus;    // the current status of the queries (true if pending)
+        mapping (bytes32 => string) _queryResult;         // the results of the queries (usable only if associated _pendingQueryStatus value is false)
+        mapping (bytes32 => string) _evaluationOperator;  // the operator allowing to compare the query return
+        mapping (bytes32 => string) _evaluationCondition; // the value to compare with the query result
     }
 
     // Storage of the badge tokens
@@ -57,10 +75,10 @@ contract BadgeTokenFactory is BadgeFactory {
     string badgeTokenSymbol = "BTO";                                // Symbol of the ERC721 tokens of the BadgeToken
 
     // Storage of the badge minting
-    Counters.Counter private _mintingNonce;                                  // a nonce injected to build the ID of the condition group to mint the badge
-    mapping(uint => PendingMinting) private _pendingMintings;                // the list of pending badge mintings
-    mapping(address => mapping(uint => uint)) private _pendingMintingBadges; // List of pending badge mintings per owner per BadgeDefinition
-    mapping(uint => uint) private _pendingQueries;                           // the list of pending queriesn
+    Counters.Counter private _mintingNonce;                                     // a nonce injected to build the ID of the condition group to mint the badge
+    mapping(bytes32 => PendingMinting) private _pendingMintings;                // the list of pending badge mintings
+    mapping(address => mapping(uint => bytes32)) private _pendingMintingBadges; // List of pending badge mintings per owner per BadgeDefinition
+    mapping(bytes32 => bytes32) private _pendingQueries;                        // the list of pending queriesn
 
     // Reference to the BadgeDefinitionFactory contract allowing to manage BadgeDefinition
     BadgeDefinitionFactory badgeDefinitionFactory;
@@ -114,7 +132,7 @@ contract BadgeTokenFactory is BadgeFactory {
     function requestBadgeTokenMinting(uint _badgeDefinitionId) notOwned(_badgeDefinitionId) isNotPendingMinting(_badgeDefinitionId) public {
         // Creating for the penting minting
         _mintingNonce.increment();
-        uint badgeConditionGroupID = uint(keccak256(abi.encodePacked(block.timestamp, _msgSender(), _mintingNonce.current())));
+        bytes32 badgeConditionGroupID = keccak256(abi.encodePacked(block.timestamp, _msgSender(), _mintingNonce.current()));
 
         // Add the badge minting to the ones asked by the user
         _pendingMintingBadges[_msgSender()][_badgeDefinitionId] = badgeConditionGroupID;
@@ -132,7 +150,10 @@ contract BadgeTokenFactory is BadgeFactory {
         // Check for every condition in the list
         for(uint i=0; i < numberOfConditions; i++){
             // Ask the Oracle to obtain the result of the query
-            uint requestID = badgeQueryOracle.runQuery(_msgSender(), badgeConditionGroupID, badgeAttributionCondition[i].indexer, badgeAttributionCondition[i].protocol, badgeAttributionCondition[i].query);
+            bytes32 requestID = badgeQueryOracle.runQuery(_msgSender(), badgeConditionGroupID, badgeAttributionCondition[i].indexer, badgeAttributionCondition[i].protocol, badgeAttributionCondition[i].query);
+            
+            // Asking for the query to be run
+            emit QueryRequest(requestID, badgeAttributionCondition[i].indexer, badgeAttributionCondition[i].protocol, badgeAttributionCondition[i].query);
             
             // Store the references & status of the query
             _pendingQueries[requestID] = badgeConditionGroupID;
@@ -149,9 +170,9 @@ contract BadgeTokenFactory is BadgeFactory {
     * @param _requestID The ID of the query.
     * @param _queryResult The result of the query.
     */
-    function updateBadgeTokenMinting(uint _requestID, string memory _queryResult) public {
-        uint badgeConditionGroupID = _pendingQueries[_requestID];
-        require(badgeConditionGroupID == 0, string(abi.encodePacked(badgeTokenSymbol, ": wrong request ID")));
+    function updateBadgeTokenMinting(bytes32 _requestID, string memory _queryResult) public {
+        bytes32 badgeConditionGroupID = _pendingQueries[_requestID];
+        require(badgeConditionGroupID != 0, string(abi.encodePacked(badgeTokenSymbol, ": wrong request ID(", _requestID, ") badgeConditionGroupID:", badgeConditionGroupID)));
 
         // Storing the result
         PendingMinting storage pendingMinting = _pendingMintings[badgeConditionGroupID];
@@ -161,11 +182,14 @@ contract BadgeTokenFactory is BadgeFactory {
         // Sending the result to the Oracle
         badgeQueryOracle.recordQueryResult(pendingMinting.caller, badgeConditionGroupID, _requestID, _queryResult);
 
+        // Telling the query has been recorded
+        emit QueryResultReceived(_requestID, _queryResult);
+
         // Evaluating overall minting process status
         bool evaluationResult = false;
         for(uint i=0; (i < pendingMinting.numberOfConditions) && (evaluationResult == false); i++){
             // Retrieving another query ID
-            uint requestID = pendingMinting._queryIndex[i];
+            bytes32 requestID = pendingMinting._queryIndex[i];
             
             // Evaluate if the condition is met
             evaluationResult = pendingMinting._pendingQueryStatus[requestID];
@@ -185,7 +209,7 @@ contract BadgeTokenFactory is BadgeFactory {
     */
     function mintBadgeToken(uint _badgeDefinitionId) notOwned(_badgeDefinitionId) isPendingMinting(_badgeDefinitionId) public returns (uint _badgeTokenId) {
         // Identifying the badge the user want to mint
-        uint badgeConditionGroupID = _pendingMintingBadges[_msgSender()][_badgeDefinitionId];
+        bytes32 badgeConditionGroupID = _pendingMintingBadges[_msgSender()][_badgeDefinitionId];
         PendingMinting storage pendingMinting = _pendingMintings[badgeConditionGroupID];
         require(_msgSender() == pendingMinting.caller, string(abi.encodePacked(badgeTokenSymbol, ": not the user who has requested the token")));
 
@@ -207,7 +231,7 @@ contract BadgeTokenFactory is BadgeFactory {
 
         // Removing the stored pending badge minting
         for(uint i=0; i < pendingMinting.numberOfConditions; i++){
-            uint requestID = pendingMinting._queryIndex[i];
+            bytes32 requestID = pendingMinting._queryIndex[i];
             delete _pendingQueries[requestID];
             delete pendingMinting._pendingQueryStatus[requestID];
             delete pendingMinting._queryResult[requestID];
@@ -237,7 +261,7 @@ contract BadgeTokenFactory is BadgeFactory {
         // Check for every condition in the list
         for(uint i=0; (i < _pendingMinting.numberOfConditions) && (_evaluationResult == true); i++){
             // Retrieving the query ID
-            uint requestID = _pendingMinting._queryIndex[i];
+            bytes32 requestID = _pendingMinting._queryIndex[i];
             
             // Evaluate if the condition is met
             _evaluationResult = _evaluateCondition(_pendingMinting._queryResult[requestID], _pendingMinting._evaluationOperator[requestID], _pendingMinting._evaluationCondition[requestID], _specialValues[i]);

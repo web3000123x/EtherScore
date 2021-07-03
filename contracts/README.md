@@ -52,8 +52,7 @@ truffle(development)> await ()... .retrieve()).toString()  # querying state
 ... or using the available scripts:
 ```bash
 $ cd <repo root>/contracts
-$ npx truffle exec --network development ./scripts/badgedefinition_example.js
-$ npx truffle exec --network development ./scripts/badgetoken_example.js
+$ ./testme.sh
 ```
 
 ## Run automated tests
