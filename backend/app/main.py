@@ -1,41 +1,54 @@
-import os, datetime, re
+import os
+import datetime
+import re
 import requests
 import covalent_api
 from pprint import pprint
 from fastapi import Request, FastAPI, status
 from jinja2 import Template
+import json
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
-PREFIX = "/api" # defined in the reverse proxy
+PREFIX = "/api"  # defined in the reverse proxy
 
 # instantiate the app
 app = FastAPI(debug=DEBUG, title="EtherScore-backend", openapi_prefix=PREFIX)
 
+with open("badges.json") as f:
+    badges = json.load(f)
+badges_definitions = badges["badges"]
+
 # functon to create a new object from a var classname
+
+
 def create_class(classname):
     cls = globals()[classname]
     return cls()
 
 # function to use requests.post to make an API call to the subgraph url
+
+
 def run_query(url, q):
     request = requests.post(url, '', json={'query': q})
     if request.status_code == 200:
         return request.json()
     else:
-        raise Exception('Query failed. return code is {}. {}'.format(request.status_code, q))
+        raise Exception('Query failed. return code is {}. {}'.format(
+            request.status_code, q))
 
 
 class TheGraph():
     """
     Base class to request TheGraph
     """
+
     def __init__(self, subgraph_url) -> None:
         self.subgraph_url = subgraph_url
         self.template = ""
 
     def run(self, values={}):
-        query = Template(self.template).render(values) 
+        query = Template(self.template).render(values)
         return run_query(self.subgraph_url, query)['data']
 
 
@@ -43,31 +56,90 @@ class Covalent():
     """
     Base class to request Covalent API
     """
+
     def __init__(self, ckey):
         self.session = covalent_api.Session(api_key=ckey)
         self.a = covalent_api.ClassA(self.session)
 
-    def get_holdings(self, wallet_address, skip_nft_metadata):
+    def run(self, wallet_address):
         # check if he holds one of our nfts
-        return self.a.get_token_balances_for_address(1, wallet_address, True, skip_nft_metadata)
+        return self.a.get_token_balances_for_address('1', wallet_address, True, True)
+
+    def getTransactions(self, wallet_address):
+        # check if he holds one of our nfts
+        return self.a.get_transactions('1', wallet_address)
+
+
+class CovalentHasTokens(Covalent):
+    def __init__(self) -> None:
+        super().__init__("ckey_2000734ae6334c75b8b44b1466e:")
+
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = 0
+        res = self.run(address)
+        if (res['data'] != None) and (res['data']['items'] != None):
+            for item in res['data']['items']:
+                if item['balance'] != "0":
+                    nb += 1
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
+
+
+class CovalentAddressUsed(Covalent):
+    def __init__(self) -> None:
+        super().__init__("ckey_2000734ae6334c75b8b44b1466e:")
+
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = 0
+        res = self.getTransactions(address)
+        if (res['data'] != None) and (res['data']['items'] != None):
+            for item in res['data']['items']:
+                if int(item['block_signed_at'].split(sep="-")[0]) < 2016:
+                    nb += 1
+                    break
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
+
+
+class CovalentGasConsumed(Covalent):
+    def __init__(self) -> None:
+        super().__init__("ckey_2000734ae6334c75b8b44b1466e:")
+
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = 0
+        res = self.getTransactions(address)
+        if (res['data'] != None) and (res['data']['items'] != None):
+            for item in res['data']['items']:
+                nb += item['gas_quote']
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
 
 
 class UniswapTransactions(TheGraph):
     """
     Get Uniswap transactions for a given wallet address
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
         query = '/app/queries/uniswap_transactions.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         number_of_swaps = 0
         res = self.run({'address': address})
-        pprint(res)
         if len(res['swaps']) > 0:
             number_of_swaps = len(res['swaps'])
         # TODO: replace 0 indice in next line to use multiple conditions
@@ -75,22 +147,23 @@ class UniswapTransactions(TheGraph):
         #badge_passport["owned"] = get
         return badge_passport
 
+
 class UniswapProvider(TheGraph):
     """
     Get Uniswap transactions for a given wallet address
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
         query = '/app/queries/uniswap_provider.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         nb = 0
         res = self.run({'address': address})
-        pprint(res)
         if len(res['mints']) > 0:
             nb = len(res['mints'])
         # TODO: replace 0 indice in next line to use multiple conditions
@@ -103,13 +176,14 @@ class UniswapMaxSwapAmount(TheGraph):
     """
     Get Uniswap max amount swapped
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
         query = '/app/queries/uniswap_max_value_swap.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         max_amount = 0
@@ -126,19 +200,20 @@ class AaveNeverLiquidated(TheGraph):
     """
     Get Aave user, number of liquidated positions
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2'
         query = '/app/queries/aave_never_liquidated.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         nb_liquidations = None
         sumBorrowed = None
         res = self.run({'address': address})
-        if res['user'] != None :
+        if res['user'] != None:
             nb_liquidations = len(res['user']["liquidationCallHistory"])
             sumBorrowed = len(res['user']["borrowHistory"])
         # TODO: replace 0 indice in next line to use multiple conditions
@@ -147,23 +222,61 @@ class AaveNeverLiquidated(TheGraph):
         #badge_passport["owned"] = get
         return badge_passport
 
+
+class AaveFlashLoans(TheGraph):
+    """
+    Get Aave user, number of liquidated positions
+    """
+
+    def __init__(self) -> None:
+        subgraph_url = 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2'
+        query = '/app/queries/aave_flash_loan.ql'
+        super().__init__(subgraph_url)
+        with open(query, 'r') as f:
+            self.template = f.read()
+
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        nb = None
+        res = self.run({'address': address})
+        if res['flashLoans'] != None:
+            nb= len(res['flashLoans'])
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = nb
+        #badge_passport["owned"] = get
+        return badge_passport
+
+class ZeExplorer():
+    """
+    Get Aave user, number of liquidated positions
+    """
+    def generate_badge_passport(self, address, badge):
+        badge_passport = badge.copy()
+        # TODO: replace 0 indice in next line to use multiple conditions
+        badge_passport["conditions"][0]["current"] = 0
+        badge_passport["conditions"][1]["current"] = 0
+        badge_passport["conditions"][2]["current"] = 0
+        #badge_passport["owned"] = get
+        return badge_passport
+
 class CompoundNeverLiquidated(TheGraph):
     """
     Get compound user, number of liquitated
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2'
         query = '/app/queries/compound_never_liquidated.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         nb_liquidations = None
         sumBorrowed = None
         res = self.run({'address': address})
-        if res['account'] != None :
+        if res['account'] != None:
             nb_liquidations = res['account']["countLiquidated"]
             sumBorrowed = res['account']["totalBorrowValueInEth"]
         # TODO: replace 0 indice in next line to use multiple conditions
@@ -172,158 +285,29 @@ class CompoundNeverLiquidated(TheGraph):
         #badge_passport["owned"] = get
         return badge_passport
 
+
 class CompoundLiquidator(TheGraph):
     """
     Get compound user, number of liquitated
     """
+
     def __init__(self) -> None:
         subgraph_url = 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2'
         query = '/app/queries/compound_liquidator.ql'
         super().__init__(subgraph_url)
         with open(query, 'r') as f:
             self.template = f.read()
-    
+
     def generate_badge_passport(self, address, badge):
         badge_passport = badge.copy()
         nb_liquidations = None
         res = self.run({'address': address})
-        if res['account'] != None :
+        if res['account'] != None:
             nb_liquidations = res['account']["countLiquidator"]
         # TODO: replace 0 indice in next line to use multiple conditions
         badge_passport["conditions"][0]["current"] = nb_liquidations
         #badge_passport["owned"] = get
         return badge_passport
-
-
-badge0 = {
-    "id" : 0,
-    "name": "Ze Trader",
-    "type": "UniswapTransactions",
-    "description": "Ze Trader is not a fan of centralized exchanges",
-    "bonus": "5 collateral covered",
-    "issuer" : "Uniswap",
-    "address" : "0x0003893947437",
-    "tags": ["uniswap", "experience"],
-    "image_url": "https://imgflip.com/s/meme/Money-Money.jpg",
-    "conditions" : 
-        [{
-        "protocol": "uniswap",
-        "description": "number of swaps",
-        "target": 50,
-        "operator": ">"
-        }]
-}
-
-badge1 = {
-    "id" : 1,
-    "name": "Ze Whale",
-    "type": "UniswapMaxSwapAmount",
-    "description": "Ze Whale is swimming in the DeFi ecosystem",
-    "bonus": "another bonus",
-    "issuer" : "Uniswap",
-    "address" : "0x9888888888999999999",
-    "tags": ["uniswap", "transaction"],
-    "image_url": "https://assets.newatlas.com/dims4/default/572b515/2147483647/strip/true/crop/1620x1080+150+0/resize/1200x800!/quality/90/?url=http%3A%2F%2Fnewatlas-brightspot.s3.amazonaws.com%2Farchive%2Fblue-whale-1.jpg",
-    "conditions":
-        [{
-        "protocol": "uniswap",
-        "description": "max amount swapped",
-        "target": 10000,
-        "operator": ">"
-        }]
-}
-
-badge2 = {
-    "id" : 2,
-    "name": "Ze Borrower",
-    "type": "CompoundNeverLiquidated",
-    "description": "Ze Borrower does not fear margin calls",
-    "bonus": "another bonus",
-    "issuer" : "Compound",
-    "address" : "0x9888888888999999999",
-    "tags": ["compound", "liquidation"],
-    "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
-    "conditions":
-        [{
-        "protocol": "compound",
-        "description": "ETH value borrowed",
-        "target": 0,
-        "operator": ">"
-        },
-        {
-        "protocol": "compound",
-        "description": "number of liquidations",
-        "target": 0,
-        "operator": "=="
-        }]
-}
-
-badge3 = {
-    "id" : 3,
-    "name": "Ze Shark",
-    "type": "CompoundLiquidator",
-    "description": "Ze Shark is a sociopath sustaining the network",
-    "bonus": "another bonus",
-    "issuer" : "Compound",
-    "address" : "0x9888888888999999999",
-    "tags": ["compound", "liquidator"],
-    "image_url": "https://media.istockphoto.com/photos/shark-swimming-towards-the-surface-with-mouth-open-picture-id1160436763?b=1&k=6&m=1160436763&s=170667a&w=0&h=Vb8G06Wln7t1oDzdtKLTWh0LkCRT4n4wo2GD6RiBoX4=",
-    "conditions":
-        [
-        {
-        "protocol": "compound",
-        "description": "Liquidate somebody",
-        "target": 10,
-        "operator": ">"
-        }]
-}
-
-badge4 = {
-    "id" : 4,
-    "name": "Ze Borrower",
-    "type": "AaveNeverLiquidated",
-    "description": "Ze Borrower does not fear margin calls",
-    "bonus": "another bonus",
-    "issuer" : "Aave",
-    "address" : "0x9888888888999999999",
-    "tags": ["aave", "liquidation"],
-    "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
-    "conditions":
-        [{
-        "protocol": "aave",
-        "description": "ETH value borrowed",
-        "target": 0,
-        "operator": ">"
-        },
-        {
-        "protocol": "aave",
-        "description": "number of liquidations",
-        "target": 0,
-        "operator": "=="
-        }]
-}
-
-badge5 = {
-    "id" : 5,
-    "name": "Ze Provider",
-    "type": "UniswapProvider",
-    "description": "Ze Provider can provide you anything",
-    "bonus": "another bonus",
-    "issuer" : "Uniswap",
-    "address" : "0x9888888888999999999",
-    "tags": ["uniswap", "provider"],
-    "image_url": "https://i1.sndcdn.com/artworks-000665042284-8emjck-t500x500.jpg",
-    "conditions":
-        [{
-        "protocol": "uniswap",
-        "description": "provide liquidity",
-        "target": 5,
-        "operator": ">"
-        }]
-}
-
-# get badges definitions from smart contract
-badges_definitions = [badge0, badge1, badge2, badge3, badge4, badge5]
 
 
 ######################################
@@ -339,6 +323,8 @@ async def root():
     return {"message": "EtherScore backend"}
 
 # Healthcheck route
+
+
 @app.get("/ping", status_code=status.HTTP_200_OK)
 async def ping():
     """
@@ -347,6 +333,8 @@ async def ping():
     return str(datetime.datetime.now())
 
 # Retrieve badges and status for a given address
+
+
 @app.post(path="/badges", status_code=status.HTTP_200_OK)
 async def badges(request: Request):
     """
@@ -364,14 +352,15 @@ async def badges(request: Request):
         print("this is an adress")
         print("User address: " + wallet_address)
 
-        badges_passports = [] # a passport is the definition + the customized information
+        badges_passports = []  # a passport is the definition + the customized information
         for badge in defs:
             # for every badge in the definition list
             mytype = badge['type']
             # create the right object (UniswapTransaction) associated to the badge, to set and verify conditions
             current = create_class(mytype)
             # add it to the passports list
-            badges_passports.append(current.generate_badge_passport(wallet_address, badge))
+            badges_passports.append(
+                current.generate_badge_passport(wallet_address, badge))
         return badges_passports
 
     else:

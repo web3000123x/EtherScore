@@ -38,7 +38,7 @@
                 :key="nft.id"
                 class="mx-primary"
                 elevation="5"
-                style="margin: 10px ;margin-top:20px; max-width:330px; max-height:500px; border-radius: 20px;
+                style="margin: 10px ;margin-top:20px; max-width:330px;border-radius: 20px;
                 padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
                 opacity: 0.95;"
                 color="background"
@@ -78,27 +78,28 @@
                   class="ma-0 pa-0"
                 >
                   <v-list-item-avatar>
-                     <img :src="getProtocolLogo(nft.issuer)">
+                     <img :src="protocolsUrl[condition.protocol]">
                   </v-list-item-avatar>
 
                   <v-list-item-content align="left">
-                    <v-list-item-title v-text="nft.issuer"></v-list-item-title>
+                    <v-list-item-title v-text="condition.protocol"></v-list-item-title>
                     <v-list-item-subtitle 
                       v-text="condition.description + ' ' + condition.operator + ' ' + condition.target"
                     >
                     </v-list-item-subtitle>
                     <v-progress-linear
+                      color="green"
                       :value="getExperienceValue(condition)"
-                      v-if="address !== ''"
+                      v-if="display"
                       height="20"
                     > 
-                      <span v-if="getExperienceValue(condition) !== 100 && condition.target !== 0"> 
+                      <span v-if="getExperienceValue(condition) < 100 && condition.target !== 0"> 
                         {{ "You: " + Math.round(condition.current) + " / " + condition.target }} 
                       </span>
                       <span v-else-if="getExperienceValue(condition) !== 100 && condition.target == 0"> 
                         {{ "You: " + Math.round(condition.current) }} 
                       </span>
-                      <span v-else> Condition validated ! </span>
+                      <span v-else> Satisfied ✔ </span>
                     </v-progress-linear>
                   </v-list-item-content>
 
@@ -112,13 +113,20 @@
                           >
                             mdi-information
                           </v-icon>
+                          
                         </template>
-                        <span>More informations</span>
+                        <span>Datasource: </span>
+                        <span>{{ condition.indexer }}</span>
+                        <img
+                            width="25px"
+                            height="25px"
+                            class="ml-1 mb-n2"
+                            :src="protocolsUrl[condition.indexer]">
                       </v-tooltip>
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on, attrs }">
                           <v-icon
-                            v-if="getExperienceValue(condition) !== 100"
+                            v-if="!address || getExperienceValue(condition) !== 100"
                             color="secondary"
                             v-bind="attrs"
                             v-on="on"
@@ -134,6 +142,8 @@
                             mdi-checkbox-marked-outline
                           </v-icon>
                         </template>
+                        <span v-if="!address || getExperienceValue(condition) != 100">Condition not satisfied</span>
+                        <span v-else>Condition satisfied</span>
                       </v-tooltip>
 
                   </v-list-item-action>
@@ -176,14 +186,25 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
       return {
         info: null,
         todos: [],
+        display: false,
+        protocolsUrl: { 
+          "Compound" : "https://cryptologos.cc/logos/compound-comp-logo.png?v=012",
+          "Uniswap" : "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012",
+          "Aave": "https://cryptologos.cc/logos/aave-aave-logo.png?v=012",
+          "Maker": "https://cryptologos.cc/logos/maker-mkr-logo.png?v=012",
+          "Ethereum": "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010",
+          "Covalent": "https://s3-us-west-1.amazonaws.com/compliance-ico-af-us-west-1/production/token_profiles/logos/original/e95/9bd/80-/e959bd80-e08c-4083-a467-a3c18af86913-1618465679-a07840bd3fb5bd1bfd842bf425f7a6a9f83dbab0.png",
+          "The Graph":"https://cryptologos.cc/logos/the-graph-grt-logo.png?v=010"
+          }
       }
     },
     created () {
       this.getTodos()
     },
     watch: {
-      address() {
-      this.getTodos()
+      async address() {
+      await this.getTodos()
+      this.display = true
     }},
     methods: {
       getTodos () {
@@ -229,20 +250,6 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
           }
         }
         return true
-      },
-      getProtocolLogo(protocol){
-        if (protocol == "Uniswap"){
-          return "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012"
-        }
-        if (protocol == "Compound"){
-          return "https://cryptologos.cc/logos/compound-comp-logo.png?v=012"
-        }
-        if (protocol == "Aave"){
-          return "https://cryptologos.cc/logos/aave-aave-logo.png?v=012"
-        }
-        if (protocol == "Maker"){
-          return "https://cryptologos.cc/logos/maker-mkr-logo.png?v=012"
-        }
       }
   }
   }
