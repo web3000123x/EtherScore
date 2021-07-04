@@ -379,3 +379,15 @@ async def badges_definition(request: Request):
     content = await request.json()
     wallet_address = str(content["wallet_address"])
     return badges_definitions
+
+
+# Retrieve badges held by the address
+@app.post(path="/oracle", status_code=status.HTTP_200_OK)
+async def answer_request(request: Request):
+    """
+    Retrieve badges held by the address
+    """
+    content = await request.json()
+    wallet_address = str(content["wallet_address"])
+    query = str(content["query"])
+    return "51"

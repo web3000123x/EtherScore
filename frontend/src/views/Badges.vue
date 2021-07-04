@@ -256,6 +256,7 @@ import json from '../BadgeTokenFactory.json'
           });
         for (var queryRequest in eventsList) {
           console.log(queryRequest)
+          // var queryResponse = this.requestOracle(this.$store.state.address, "fakeQuery")
           var oracle = await contract.methods.updateBadgeTokenMinting(eventsList[queryRequest]["returnValues"]["_requestID"],"51")
           console.log(oracle)
           var res2 = await oracle.send({from: this.$store.state.address})
