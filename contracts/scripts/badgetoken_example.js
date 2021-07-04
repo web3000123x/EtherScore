@@ -71,7 +71,7 @@ module.exports = async function main(callback) {
     console.log("updateBadgeTokenMinting: The new result of the query", requestID1_2, "is", queryResult1_2);
 
     // (badge 2 - BadgeToken transferrable)
-    await badgeTokenFactory.updateBadgeTokenMinting(requestID2_1, "55", {from: owner_address});
+    await badgeTokenFactory.updateBadgeTokenMinting(requestID2_1, "55", {from: owner2_address});
     
     await badgeTokenFactory.getPastEvents( 'QueryResultReceived', { fromBlock: 'latest', toBlock: 'latest' } )
     .then(function(events){

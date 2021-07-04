@@ -73,4 +73,28 @@ abstract contract BadgeFactory is ERC721Enumerable, Ownable {
     function _setBaseURI(string memory baseURI_) private {
         _badgeBaseURI = baseURI_;
     }
+
+    function _stringToUint(string memory s) internal pure returns (uint result) {
+        bytes memory b = bytes(s);
+        uint i;
+        result = 0;
+        for (i = 0; i < b.length; i++) {
+            uint c = uint(uint8(b[i]));
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
+            }
+        }
+    }
+
+    // function _bytes32ToString(bytes32 _bytes32) internal pure returns (string memory) {
+    //     uint8 i = 0;
+    //     while(i < 32 && _bytes32[i] != 0) {
+    //         i++;
+    //     }
+    //     bytes memory bytesArray = new bytes(i);
+    //     for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+    //         bytesArray[i] = _bytes32[i];
+    //     }
+    //     return string(bytesArray);
+    // }
 }

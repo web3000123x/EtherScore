@@ -172,7 +172,9 @@ contract BadgeTokenFactory is BadgeFactory {
     */
     function updateBadgeTokenMinting(bytes32 _requestID, string memory _queryResult) public {
         bytes32 badgeConditionGroupID = _pendingQueries[_requestID];
-        require(badgeConditionGroupID != 0, string(abi.encodePacked(badgeTokenSymbol, ": wrong request ID(", _requestID, ") badgeConditionGroupID:", badgeConditionGroupID)));
+        // string memory requestIDString = _bytes32ToString(_requestID);
+        // require(badgeConditionGroupID != 0, string(abi.encodePacked(badgeTokenSymbol, ": wrong request ID(", requestIDString, ") badgeConditionGroupID:", badgeConditionGroupID)));
+        require(badgeConditionGroupID != 0, string(abi.encodePacked(badgeTokenSymbol, ": wrong request ID(", _requestID, ")")));
 
         // Storing the result
         PendingMinting storage pendingMinting = _pendingMintings[badgeConditionGroupID];
@@ -286,23 +288,23 @@ contract BadgeTokenFactory is BadgeFactory {
 
         // Evaluate the query return
         if(operatorHash == keccak256(bytes("<"))){
-            _evaluationResult = stringToUint(_queryResult) < stringToUint(_condition);
+            _evaluationResult = _stringToUint(_queryResult) < _stringToUint(_condition);
         } else{
             if(operatorHash == keccak256(bytes("<="))){
-                _evaluationResult = stringToUint(_queryResult) <= stringToUint(_condition);
+                _evaluationResult = _stringToUint(_queryResult) <= _stringToUint(_condition);
             } else{
                 if(operatorHash == keccak256(bytes(">"))){
-                    _evaluationResult = stringToUint(_queryResult) > stringToUint(_condition);
+                    _evaluationResult = _stringToUint(_queryResult) > _stringToUint(_condition);
                 } else{
                     if(operatorHash == keccak256(bytes(">="))){
-                        _evaluationResult = stringToUint(_queryResult) >= stringToUint(_condition);
+                        _evaluationResult = _stringToUint(_queryResult) >= _stringToUint(_condition);
                         // _evaluationResult = false;
                     } else{
                         if(operatorHash == keccak256(bytes("=="))){
-                            _evaluationResult = stringToUint(_queryResult) == stringToUint(_condition);
+                            _evaluationResult = _stringToUint(_queryResult) == _stringToUint(_condition);
                         } else{
                             if(operatorHash == keccak256(bytes("!="))){
-                                _evaluationResult = stringToUint(_queryResult) != stringToUint(_condition);
+                                _evaluationResult = _stringToUint(_queryResult) != _stringToUint(_condition);
                             } else{
                                 if(operatorHash == keccak256(bytes("special"))){
                                     _evaluationResult = true;
@@ -370,17 +372,5 @@ contract BadgeTokenFactory is BadgeFactory {
         return bytes(URI).length > 0
             ? string(URI)
             : '';
-    }
-
-    function stringToUint(string memory s) private pure returns (uint result) {
-        bytes memory b = bytes(s);
-        uint i;
-        result = 0;
-        for (i = 0; i < b.length; i++) {
-            uint c = uint(uint8(b[i]));
-            if (c >= 48 && c <= 57) {
-                result = result * 10 + (c - 48);
-            }
-        }
     }
 }
