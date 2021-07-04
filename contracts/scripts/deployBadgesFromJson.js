@@ -25,7 +25,7 @@ module.exports = async function main(callback) {
 
       for (var conditionIndex in badge.conditions){
         var condition = badge.conditions[conditionIndex]
-        await badgeDefinitionFactory.addBadgeAttributionCondition(badgeId, condition.description, condition.indexer, condition.protocol, "fakeQuery", condition.operator, condition.target);
+        await badgeDefinitionFactory.addBadgeAttributionCondition(badgeId, condition.description, condition.indexer, condition.protocol, "fakeQuery", condition.operator, condition.target.toString());
         console.log("*" + condition.protocol, condition.indexer, condition.description , condition.operator, condition.target)
       }
       await badgeDefinitionFactory.publishBadgeDefinition(badgeId);
