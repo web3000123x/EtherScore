@@ -70,6 +70,13 @@
                   </p>
                 <v-spacer/>
                 <br/>
+                <v-icon
+                  color="black"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-pickaxe
+                </v-icon>
                 <span class="text-subtitle-1 black--text"> Minting conditions: </span>
 
                 <v-list-item

@@ -2,7 +2,7 @@
     <v-row class="text-center" justify="center">
   <v-card
     elevation="15"
-    style="max-width:700px; max-height: 800px; border-radius: 20px;
+    style="max-width:700px; max-height: 1000px; border-radius: 20px;
     padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
     class="pa-10 mt-15"
@@ -17,6 +17,11 @@
         No-code NFT badge model issuing
       </p>
     </v-row>
+      <br/>
+      <img class="mx-2 mt-2" height="30px" width="30px" :src="protocolsUrl['Ethereum']" />
+      <p class="subheading font-weight-bold black--text">
+        ERC-721 standard infos
+      </p>
         <template>
           <v-form
             ref="form"
@@ -62,23 +67,31 @@
 
             <v-row>
               <v-col cols="4">
-                <v-subheader>Image</v-subheader>
+                <v-subheader>Ipfs URI</v-subheader>
               </v-col>
               <v-col cols="8">
-                <v-file-input
-                  accept="image/png, image/jpeg, image/bmp"
-                  placeholder="Pick an image"
-                  prepend-icon="mdi-camera"
-                  class="mt-0"
-                  label="Image"
-                ></v-file-input>
+                <v-text-field
+                  v-model="ipfsURI"
+                  label="Ipfs URI"
+                  required
+                  outlined
+                  shaped
+                  class="mb-n6"
+                ></v-text-field>
               </v-col>
             </v-row>
 
             <v-divider/>
-
-            <p class="subheading font-weight-regular black--text ma-2" align="left"> 
-              NFT minting conditions 
+            <v-icon
+              color="black"
+              v-bind="attrs"
+              v-on="on"
+              class="mt-2"
+            >
+              mdi-pickaxe
+            </v-icon>
+            <p class="subheading font-weight-bold black--text"> 
+              Minting conditions 
             </p>
             <v-row>
                 <v-select
@@ -93,7 +106,26 @@
                   dense
                   style="max-width:300px;"
                   :hint="hintProtocol"
-                ></v-select>
+                >
+                  <template slot="selection" slot-scope="data">
+                    <v-flex xs2>
+                      <v-avatar size="25px">
+                        <img class="mx-2" height="30px" width="30px" :src="protocolsUrl[data.item]" />
+                      </v-avatar>
+                    </v-flex>
+                    <v-flex class='ml-1'>
+                      {{ data.item }}
+                    </v-flex>
+                  </template>
+                <template slot="item" slot-scope="data">
+                  <v-list-tile-avatar>
+                    <img class="mr-5" height="30px" width="30px" :src="protocolsUrl[data.item]" />
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title v-html="data.item"></v-list-tile-title>
+                  </v-list-tile-content>
+                </template>
+                </v-select>
                 <v-spacer/>
                 <v-select
                   v-model="indexer"
@@ -107,7 +139,26 @@
                   dense
                   style="max-width:300px;"
                   :hint="hintIndexer"
-                ></v-select>
+                >
+                  <template slot="selection" slot-scope="data">
+                    <v-flex xs2>
+                      <v-avatar size="25px">
+                        <img class="mx-2" height="30px" width="30px" :src="protocolsUrl[data.item]" />
+                      </v-avatar>
+                    </v-flex>
+                    <v-flex class='ml-1'>
+                      {{ data.item }}
+                    </v-flex>
+                  </template>
+                 <template slot="item" slot-scope="data">
+                  <v-list-tile-avatar>
+                    <img class="mr-2" height="30px" width="30px" :src="protocolsUrl[data.item]" />
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title v-html="data.item"></v-list-tile-title>
+                  </v-list-tile-content>
+                </template>
+                </v-select>
             </v-row>
 
             <v-row>
@@ -135,7 +186,8 @@
                 dense
                 style="max-width:150px;"
                 :hint="hintOperator"
-              ></v-select>
+              > 
+              </v-select>
               <v-spacer/>
               <v-text-field
                 v-model="value"
@@ -203,6 +255,7 @@
       metric: '',
       indexer: '',
       operator: '',
+      ipfsURI: '',
       conditions: [],
       nameRules: [
         v => !!v || 'Badge Name is required',
@@ -213,10 +266,17 @@
         'Uniswap',
         'Compound',
         'Aave',
+        'Ethereum'
       ],
       metrics: [
         'Number of swap',
-        'Gas consumed'
+        'Gas consumed',
+        'ETH value borrowed',
+        'Number of liquidations',
+        'Tx before',
+        'Number of tokens',
+        'Number of flash loans',
+        'Has liquidate somebody'
       ],
       indexers: [
         'The Graph Protocol',
@@ -226,6 +286,8 @@
         '==',
         '=>',
         '<=',
+        '>',
+        '<',
       ],
       checkbox2: true,
       hintName: "The name of your badge (example: \"Uniswapper boy\")",
@@ -236,6 +298,15 @@
       hintOperator: "The operator such as equal, greater/less than",
       hintValue: "The number ....",
       showConditions: false,
+      protocolsUrl: { 
+        "Compound" : "https://cryptologos.cc/logos/compound-comp-logo.png?v=012",
+        "Uniswap" : "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012",
+        "Aave": "https://cryptologos.cc/logos/aave-aave-logo.png?v=012",
+        "Maker": "https://cryptologos.cc/logos/maker-mkr-logo.png?v=012",
+        "Ethereum": "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=010",
+        "Covalent": "https://s3-us-west-1.amazonaws.com/compliance-ico-af-us-west-1/production/token_profiles/logos/original/e95/9bd/80-/e959bd80-e08c-4083-a467-a3c18af86913-1618465679-a07840bd3fb5bd1bfd842bf425f7a6a9f83dbab0.png",
+        "The Graph Protocol":"https://cryptologos.cc/logos/the-graph-grt-logo.png?v=010"
+        }
     }),
 
     methods: {
