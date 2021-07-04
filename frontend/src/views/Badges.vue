@@ -246,26 +246,28 @@ import json from '../BadgeTokenFactory.json'
         const web3 = new Web3(window.ethereum, null, {transactionConfirmationBlocks: 1})
         var contract = new web3.eth.Contract(this.myJson.abi ,'0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B');
         console.log(contract);
-        var query = await contract.methods.requestBadgeTokenMinting("1")
+        var query = await contract.methods.requestBadgeTokenMinting("0")
         var res = await query.send({from: this.$store.state.address})
         console.log(res)
-        var requestId = await contract.getPastEvents( 'QueryRequest', { fromBlock: 'latest', toBlock: 'latest' } )
+        var eventsList = await contract.getPastEvents( 'QueryRequest', { fromBlock: 'latest', toBlock: 'latest' } )
           .then(function(events){
               console.log(events)
-              return events[0]["returnValues"]["_requestID"];
+              return events
           });
+        for (var queryRequest in eventsList) {
+          console.log(queryRequest)
+          var oracle = await contract.methods.updateBadgeTokenMinting(eventsList[queryRequest]["returnValues"]["_requestID"],"51")
+          console.log(oracle)
+          var res2 = await oracle.send({from: this.$store.state.address})
+          console.log(res2)
+        }
 
-        console.log(requestId);
-        var oracle = await contract.methods.updateBadgeTokenMinting(requestId,"51")
-        console.log(oracle)
-        var res2 = await oracle.send({from: this.$store.state.address})
-        console.log(res2)
 
         await contract.getPastEvents( 'BadgeTokenReady', { fromBlock: 'latest', toBlock: 'latest' } )
         .then(function(events){
           return events[0]["returnValues"]["0"]
           });
-        var mintQuery = await contract.methods.mintBadgeToken("1");
+        var mintQuery = await contract.methods.mintBadgeToken("0");
         var res3 = await mintQuery.send({from: this.$store.state.address})
         console.log(res3);
 
