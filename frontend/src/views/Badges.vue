@@ -74,6 +74,7 @@
                   color="black"
                   v-bind="attrs"
                   v-on="on"
+                  class="mb-1"
                 >
                   mdi-pickaxe
                 </v-icon>
@@ -90,10 +91,15 @@
 
                   <v-list-item-content align="left">
                     <v-list-item-title v-text="condition.protocol"></v-list-item-title>
-                    <v-list-item-subtitle 
+                    <v-list-item-subtitle
+                      v-if="!address || getExperienceValue(condition) !== 100"
                       v-text="condition.description + ' ' + condition.operator + ' ' + condition.target"
-                    >
-                    </v-list-item-subtitle>
+                    ></v-list-item-subtitle>
+                    <v-list-item-subtitle
+                      class="green--text"
+                      v-else
+                      v-text="condition.description + ' ' + condition.operator + ' ' + condition.target"
+                    ></v-list-item-subtitle>
                     <v-progress-linear
                       color="green"
                       :value="getExperienceValue(condition)"

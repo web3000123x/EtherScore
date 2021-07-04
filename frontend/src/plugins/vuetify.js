@@ -9,7 +9,7 @@ export default new Vuetify({
     theme: {
         themes: {
           light: {
-            primary: colors.yellow.accent2,
+            primary: colors.grey.darken3,
             secondary: colors.grey.darken1,
             accent: colors.shades.black,
             error: colors.red.accent3,

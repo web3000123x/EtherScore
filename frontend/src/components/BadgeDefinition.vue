@@ -9,11 +9,11 @@
   >
 
     <v-row>
-      <h1 class="display-2 black--text ma-3">
+      <span class="text-h4 font-weight-light black--text">
         Create new Badge Definition
-      </h1>
+      </span>
       <br/>
-      <p class="subheading font-weight-regular black--text ma-2">
+      <p class="text-subtitle-1 font-weight-thin black--text">
         No-code NFT badge model issuing
       </p>
     </v-row>
@@ -81,7 +81,6 @@
               </v-col>
             </v-row>
 
-            <v-divider/>
             <v-icon
               color="black"
               v-bind="attrs"
