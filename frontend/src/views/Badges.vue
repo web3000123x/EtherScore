@@ -261,16 +261,11 @@ import json from '../BadgeTokenFactory.json'
         var res2 = await oracle.send({from: this.$store.state.address})
         console.log(res2)
 
-        var badgeDefinitionId = await contract.getPastEvents( 'BadgeTokenReady', { fromBlock: 'latest', toBlock: 'latest' } )
+        await contract.getPastEvents( 'BadgeTokenReady', { fromBlock: 'latest', toBlock: 'latest' } )
         .then(function(events){
-          if (requestId === events[0]["returnValues"][0]){
-              console.log(events[0]["returnValues"]["_badgeDefinitionId"])
-              return events[0]["returnValues"]["_badgeDefinitionId"];
-          }
+          return events[0]["returnValues"]["0"]
           });
-
-
-        var mintQuery = await contract.methods.mintBadgeToken(badgeDefinitionId);
+        var mintQuery = await contract.methods.mintBadgeToken("1");
         var res3 = await mintQuery.send({from: this.$store.state.address})
         console.log(res3);
 
