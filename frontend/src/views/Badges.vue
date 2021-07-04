@@ -154,7 +154,6 @@
                 <v-btn
                   color="secondary"
                   class="rounded-xl"
-                  :disabled="!isClaimable(nft)"
                   v-on:click="fakeMetamaskPrompt"
                 >
                   <span v-if="!isClaimable(nft)"> Not Claimable </span>
@@ -174,6 +173,8 @@ import { mapState } from 'vuex';
 import axios from 'axios'
 import MetamaskChip from '../components/MetamaskChip.vue'
 import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
+import Web3 from 'web3'
+import json from '../BadgeTokenFactory.json'
 
   export default {
     name: 'Badges',
@@ -187,6 +188,7 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
         info: null,
         todos: [],
         display: false,
+        myJson: json,
         protocolsUrl: { 
           "Compound" : "https://cryptologos.cc/logos/compound-comp-logo.png?v=012",
           "Uniswap" : "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012",
@@ -240,8 +242,48 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
           return 0
         }
       },
-      fakeMetamaskPrompt(){
-        alert('This is a fake metamask prompt')
+      async fakeMetamaskPrompt(){
+        const web3 = new Web3(window.ethereum, null, {transactionConfirmationBlocks: 1})
+        var contract = new web3.eth.Contract(this.myJson.abi ,'0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B');
+        console.log(contract);
+        var query = await contract.methods.requestBadgeTokenMinting("1")
+        var res = await query.send({from: this.$store.state.address})
+        console.log(res)
+        var requestId = await contract.getPastEvents( 'QueryRequest', { fromBlock: 'latest', toBlock: 'latest' } )
+          .then(function(events){
+              console.log(events)
+              return events[0]["returnValues"]["_requestID"];
+          });
+
+        console.log(requestId);
+        var oracle = await contract.methods.updateBadgeTokenMinting(requestId,"51")
+        console.log(oracle)
+        var res2 = await oracle.send({from: this.$store.state.address})
+        console.log(res2)
+
+        var badgeDefinitionId = await contract.getPastEvents( 'BadgeTokenReady', { fromBlock: 'latest', toBlock: 'latest' } )
+        .then(function(events){
+          if (requestId === events[0]["returnValues"][0]){
+              console.log(events[0]["returnValues"]["_badgeDefinitionId"])
+              return events[0]["returnValues"]["_badgeDefinitionId"];
+          }
+          });
+
+
+        var mintQuery = await contract.methods.mintBadgeToken(badgeDefinitionId);
+        var res3 = await mintQuery.send({from: this.$store.state.address})
+        console.log(res3);
+
+        // for (var condition in res.events){
+        //   console.log(condition[0]["returnValues"]["_requestID"])
+        // }
+        // await window.ethereum.request({
+        //   method: 'eth_sendTransaction',
+        //   params: [{
+        //     from: this.address,
+        //     to: '0xACa94ef8bD5ffEE41947b4585a84BdA5a3d3DA6E', // Initially only supports ERC20, but eventually more!
+        //   }],
+        // });
       },
       isClaimable(nft){
         for (var condition in nft.conditions) {
@@ -250,6 +292,36 @@ import BadgeDialogDetail from '../components/BadgeDialogDetail.vue'
           }
         }
         return true
+      },
+      async testAddToken(){
+        const tokenAddress = '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B';
+        const tokenSymbol = 'ETHS';
+        const tokenDecimals = 0;
+        const tokenImage = 'http://localhost/img/etherscore_black_transparent.1dbd9f05.png';
+
+        try {
+          // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+          const wasAdded = await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20', // Initially only supports ERC20, but eventually more!
+              options: {
+                address: tokenAddress, // The address that the token is at.
+                symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+                decimals: tokenDecimals, // The number of decimals in the token
+                image: tokenImage, // A string url of the token logo
+              },
+            },
+          });
+
+          if (wasAdded) {
+            console.log('Thanks for your interest!');
+          } else {
+            console.log('Your loss!');
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
   }
   }
