@@ -9,10 +9,10 @@
           class="pa-10 mt-15"
         >
           
-          <h1 class="display-2 black--text">
+          <span class="text-h3 font-weight-light black--text">
             Badges Definitions
-          </h1>
-          <p class="subheading font-weight-regular black--text ma-2">
+          </span>
+          <p class="text-subtitle-1 font-weight-thin black--text">
             List of badge models owned
           </p>
           <v-spacer></v-spacer>
