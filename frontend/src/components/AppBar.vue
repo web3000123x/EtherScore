@@ -57,10 +57,10 @@
         class="rounded-xl pa-5"
         min-width="0"
         text
-        to="/bonus"
+        to="/community"
       >
-        Bonus
-        <v-icon>mdi-gift</v-icon>
+        Community
+        <v-icon>mdi-account-group</v-icon>
       </v-btn>
 
       <v-spacer></v-spacer>
