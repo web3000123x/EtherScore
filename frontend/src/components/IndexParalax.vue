@@ -21,8 +21,11 @@
               large
               href="/badges"
             >
-              Claim your NFTs
+        <v-icon color="white">mdi-arrow-right-circle-outline</v-icon>
+              Claim your Badges
+        <v-icon>mdi-hexagon-slice-6</v-icon>
             </v-btn>
+            
           </v-layout>
         </v-parallax>
       </section>
@@ -48,7 +51,9 @@
                 <v-flex xs12 md4>
                   <v-card flat class="transparent">
                     <v-card-text class="text-center">
-                      <v-icon x-large class="blue--text text--lighten-2">mdi-decagram</v-icon>
+                      <v-icon x-large color="black" class="text-h2">
+                        mdi-hexagon-slice-6
+                      </v-icon>
                     </v-card-text>
                     <v-card-title primary-title class="layout justify-center">
                       <div class="headline">NFTs Badges</div>
@@ -56,14 +61,14 @@
                     <v-card-text>
                       Protocols can issue EtherScore badges to distribute to their users. <br/>
                       On-Chain verification of badge's conditions through Oracles. <br/>
-                      Based on The Graph Protocol indexed data.
+                      Based on Covalent and The Graph Protocol indexed data.
                     </v-card-text>
                   </v-card>
                 </v-flex>
                 <v-flex xs12 md4>
                   <v-card flat class="transparent">
                     <v-card-text class="text-center">
-                      <v-icon x-large class="blue--text text--lighten-2">mdi-account-multiple-check</v-icon>
+                      <v-icon x-large color="black" class="text-h2">mdi-account-multiple-check</v-icon>
                     </v-card-text>
                     <v-card-title primary-title class="layout justify-center">
                       <div class="headline text-center">Community curation</div>
@@ -72,21 +77,27 @@
                       Reliable protocol's users are identified. <br/>
                       Protocols know their community. <br/>
                       More trust
+                      A fair airdrop distribution model for protocols <br/>
+                      An open Ethereum user profile standard<br/>
                     </v-card-text>
                   </v-card>
                 </v-flex>
                 <v-flex xs12 md4>
                   <v-card flat class="transparent">
                     <v-card-text class="text-center">
-                      <v-icon x-large class="blue--text text--lighten-2">mdi-gift-outline</v-icon>
+                      <v-icon x-large color="black" class="text-h2">mdi-gift-outline</v-icon>
                     </v-card-text>
                     <v-card-title primary-title class="layout justify-center">
-                      <div class="headline text-center">Incentives</div>
+                      <div class="headline text-center">Benefits</div>
                     </v-card-title>
                     <v-card-text>
-                      More APYs <br/>
-                      More fair airdrops <br/>
-                      Less fees on partner's protocols
+                      <ul>Protocols can offer to reliable users: <br/>
+                        <li>More profitable DeFi pools</li>
+                        <li>Less collateralized DeFi pools</li>
+                        <li>Premium access to alpha/beta services</li>
+                        <li>More DAO voting power</li>
+                        <li>IDO whitelist</li>
+                      </ul> <br/>
                     </v-card-text>
                   </v-card>
                 </v-flex>
@@ -99,15 +110,17 @@
       <section>
         <v-parallax src="@/assets/paralax.jpg" height="380">
           <v-layout column align-center justify-center>
-            <div class="headline black--text mb-4 text-center">Curated Vaults</div>
-            <em class="black--text"> Get better staking profits if you are a reliable user</em>
+            <div class="headline black--text mb-4 text-center">Participate to challenges and events</div>
+            <em class="black--text"> Get partners offers if you are a reliable user</em>
             <v-btn
               class="mt-12 rounded-xl pa-9"
               dark
               large
-              href="/vaults"
+              href="/community"
             >
-              Go To Vaults
+        <v-icon color="white">mdi-arrow-right-circle-outline</v-icon>
+              Go To Community
+        <v-icon>mdi-account-group</v-icon>
             </v-btn>
           </v-layout>
         </v-parallax>
@@ -124,7 +137,7 @@
                   EtherScore is a protocol based on Ethereum enabling Dapps to better identify their reliable
                    users by distributing them NFTs. These NFTs can then be used as conditions to access
                    specific smart contracts, airdrops, or even more DAO voting power and many other incentives.
-                   EtherScore uses The Graph Protocol and Chainlink to execute all process on-chain.
+                   EtherScore uses Covalent and The Graph Protocol to execute all process on-chain.
                    
                 </v-card-text>
               </v-card>
@@ -140,7 +153,7 @@
                 <v-list class="transparent">
                   <v-list-item>
                     <v-list-item-action>
-                      <v-icon class="blue--text text--lighten-2">mdi-email</v-icon>
+                      <v-icon>mdi-email</v-icon>
                     </v-list-item-action>
                     <v-list-item-content>
                       <v-list-item-title>etherscore@protonmail.com</v-list-item-title>
@@ -157,6 +170,6 @@
 
 <script>
   export default {
-    name: 'HelloWorld',
+    name: 'IndexParalax',
   }
 </script>

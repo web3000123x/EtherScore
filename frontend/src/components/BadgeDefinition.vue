@@ -14,7 +14,7 @@
       </span>
       <br/>
       <p class="text-subtitle-1 font-weight-thin black--text">
-        No-code NFT badge model issuing
+        No-code NFT badge definition issuing
       </p>
     </v-row>
       <br/>

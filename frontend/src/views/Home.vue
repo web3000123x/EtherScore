@@ -1,15 +1,15 @@
 <template>
-  <hello-world />
+  <index-paralax />
 </template>
 
 <script>
-  import HelloWorld from '../components/HelloWorld'
+import IndexParalax from '../components/IndexParalax.vue'
 
   export default {
     name: 'Home',
 
     components: {
-      HelloWorld,
+      IndexParalax
     },
   }
 </script>

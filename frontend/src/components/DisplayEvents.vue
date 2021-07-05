@@ -2,9 +2,9 @@
   <v-card
     elevation="25"
     style="min-width:330px; max-width:330px; border-radius: 20px;
-    padding: 1.2rem;  border: 1px solid; font-weight: 500;
+    padding: 1.2rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="lime lighten-5 mt-n2"
+    class="mt-n2"
   >            
   <v-cols>
       <v-img

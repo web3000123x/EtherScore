@@ -13,7 +13,7 @@
             Badges Definitions
           </span>
           <p class="text-subtitle-1 font-weight-thin black--text">
-            List of badge models owned
+            List of badge definitions owned
           </p>
           <v-spacer></v-spacer>
           <metamask-chip/>

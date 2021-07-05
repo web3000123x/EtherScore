@@ -4,7 +4,6 @@
     style="max-height:640px; max-width:350px;border-radius: 20px;
     padding: 2.1rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="lime lighten-5"
   >
     <v-cols>
       <v-img

@@ -48,7 +48,7 @@
         to="/badges"
       >
         Badges
-        <v-icon>mdi-decagram</v-icon>
+        <v-icon>mdi-hexagon-slice-6</v-icon>
       </v-btn>
 
       <v-spacer></v-spacer>

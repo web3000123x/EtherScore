@@ -4,7 +4,6 @@
     style="max-width:420px;border-radius: 20px;
     padding: 1.5rem;  border: 1px solid; color: white; font-weight: 500;
     opacity: 0.95;"
-    class="lime lighten-5"
   >
     <v-cols>
       <v-img
@@ -51,7 +50,7 @@
       </v-data-table>
       <v-spacer/>
       <p class="text-subtitle-1 font-weight-thin black--text mt-10" align="left">
-        Check the rank of badge model deployers
+        Check the rank of badge definition creators
       </p>
       <v-text-field
         v-model="search"
