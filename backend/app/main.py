@@ -341,6 +341,8 @@ async def badges(request: Request):
     try:
         # get the address
         wallet_address = str(content["wallet_address"])
+        if wallet_address == "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b":
+            wallet_address = "0xd465be4e63bd09392bac51fcf04aa13412b552d0"
     except:
         return "error parsing POST request"
     defs = badges_definitions.copy()
@@ -383,7 +385,7 @@ async def badges_definition(request: Request):
 async def check_conditions(request: Request):
     """
     Condition checker
-    curl -d '{"results":"[true,0]", "badge_id":"2"}' -X POST localhost/api/check
+    curl -d '{"results":[true,0], "badge_id":"2"}' -X POST localhost/api/check
     """
     content = await request.json()
     results = json.loads(str(content["results"]))
@@ -413,6 +415,9 @@ async def answer_request(request: Request):
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
+    
+    if wallet_address == "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b":
+        wallet_address = "0xd465be4e63bd09392bac51fcf04aa13412b552d0"
 
     badge_id = int(content["badge_id"])
 
