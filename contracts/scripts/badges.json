@@ -1,6 +1,52 @@
 {
     "badges": [
         {
+            "id": 7,
+            "name": "Ze OG",
+            "type": "CovalentAddressUsed",
+            "description": "Ze OG was here before ICOs mania",
+            "bonus": "another bonus",
+            "issuer": "Ethereum",
+            "address": "0x9888888888999999999",
+            "tags": [
+                "Ethereum",
+                "tokens"
+            ],
+            "image_url": "https://i.pinimg.com/474x/06/87/8f/06878f45592f203a5e4af45b816b2a0b.jpg",
+            "conditions": [
+                {
+                    "protocol": "Ethereum",
+                    "indexer": "Covalent",
+                    "description": "tx before 2016",
+                    "target": 0,
+                    "operator": ">"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "name": "Ze Flash",
+            "type": "AaveFlashLoans",
+            "description": "Ze Flash knows how to catch an opportunity",
+            "bonus": "another bonus",
+            "issuer": "Aave",
+            "address": "0x9888888888999999999",
+            "tags": [
+                "Aave",
+                "flash loans"
+            ],
+            "image_url": "https://observatoriodocinema.uol.com.br/wp-content/uploads/2021/02/grant-gustin-the-flash-cambio-fisico-1280x720-1-1200x675.jpg",
+            "conditions": [
+                {
+                    "protocol": "Aave",
+                    "indexer": "The Graph",
+                    "description": "initiated flash loans",
+                    "target": 5,
+                    "operator": ">"
+                }
+            ]
+        },
+        {
             "id": 0,
             "name": "Ze Trader",
             "type": "UniswapTransactions",
@@ -12,14 +58,52 @@
                 "Uniswap",
                 "experience"
             ],
-            "image_url": "https://i.insider.com/5339f08f6da8117320f4bf59?width=600&format=jpeg",
+            "image_url": "https://i.imgflip.com/6icl0.jpg",
             "conditions": [
                 {
                     "protocol": "Uniswap",
                     "indexer": "The Graph",
+                    "query": "int|{swaps(orderBy: timestamp, where: { to: quoted_address }) {id}}",
                     "description": "number of swaps",
                     "target": 50,
                     "operator": ">"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "name": "Ze Explorer",
+            "type": "ZeExplorer",
+            "description": "Ze Explorer knows each spot of the DeFi",
+            "bonus": "another bonus",
+            "issuer": "Aave",
+            "address": "0x9888888888999999999",
+            "tags": [
+                "Aave",
+                "flash loans"
+            ],
+            "image_url": "https://businessmirror.com.ph/wp-content/uploads/2018/12/Magellan-portrait.jpg",
+            "conditions": [
+                {
+                    "protocol": "Compound",
+                    "indexer": "Covalent",
+                    "description": "hold \"Ze Borrower\"",
+                    "target": 1,
+                    "operator": "=="
+                },
+                {
+                    "protocol": "Uniswap",
+                    "indexer": "Covalent",
+                    "description": "hold \"Ze Trader\"",
+                    "target": 1,
+                    "operator": "=="
+                },
+                {
+                    "protocol": "Uniswap",
+                    "indexer": "Covalent",
+                    "description": "hold \"Ze Provider\"",
+                    "target": 1,
+                    "operator": "=="
                 }
             ]
         },
@@ -40,6 +124,7 @@
                 {
                     "protocol": "Uniswap",
                     "indexer": "The Graph",
+                    "query": "int|{swaps(first:1, orderBy: amountUSD, orderDirection: desc, where: { to: quoted_address }) {amountUSD}}",
                     "description": "max amount swapped",
                     "target": 10000,
                     "operator": ">"
@@ -58,18 +143,20 @@
                 "Compound",
                 "liquidation"
             ],
-            "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
+            "image_url": "https://www.meme-arsenal.com/memes/e2064a411ac3fa1066f90ae854a64d60.jpg",
             "conditions": [
                 {
                     "protocol": "Compound",
                     "indexer": "The Graph",
-                    "description": "ETH value borrowed",
-                    "target": 0,
-                    "operator": ">"
+                    "query":"bool|{account(id: quoted_address) {hasBorrowed}}",
+                    "description": "has ever borrowed",
+                    "target": "True",
+                    "operator": "=="
                 },
                 {
                     "protocol": "Compound",
                     "indexer": "The Graph",
+                    "query": "int|{account(id: quoted_address) {countLiquidated}}",
                     "description": "number of liquidations",
                     "target": 0,
                     "operator": "=="
@@ -111,7 +198,7 @@
                 "Aave",
                 "liquidation"
             ],
-            "image_url": "https://i.pinimg.com/originals/33/e0/0b/33e00b57d15daaece29e29e9b475683f.png",
+            "image_url": "https://www.meme-arsenal.com/memes/e2064a411ac3fa1066f90ae854a64d60.jpg",
             "conditions": [
                 {
                     "protocol": "Aave",
@@ -176,29 +263,6 @@
             ]
         },
         {
-            "id": 7,
-            "name": "Ze OG",
-            "type": "CovalentAddressUsed",
-            "description": "Ze OG was here before ICOs mania",
-            "bonus": "another bonus",
-            "issuer": "Ethereum",
-            "address": "0x9888888888999999999",
-            "tags": [
-                "Ethereum",
-                "tokens"
-            ],
-            "image_url": "https://i.pinimg.com/474x/06/87/8f/06878f45592f203a5e4af45b816b2a0b.jpg",
-            "conditions": [
-                {
-                    "protocol": "Ethereum",
-                    "indexer": "Covalent",
-                    "description": "tx before 2016",
-                    "target": 0,
-                    "operator": ">"
-                }
-            ]
-        },
-        {
             "id": 8,
             "name": "Ze Smoker",
             "type": "CovalentGasConsumed",
@@ -218,66 +282,6 @@
                     "description": "$ value gas consumed",
                     "target": 500,
                     "operator": ">"
-                }
-            ]
-        },
-        {
-            "id": 9,
-            "name": "Ze Flash",
-            "type": "AaveFlashLoans",
-            "description": "Ze Flash knows how to catch an opportunity",
-            "bonus": "another bonus",
-            "issuer": "Aave",
-            "address": "0x9888888888999999999",
-            "tags": [
-                "Aave",
-                "flash loans"
-            ],
-            "image_url": "https://observatoriodocinema.uol.com.br/wp-content/uploads/2021/02/grant-gustin-the-flash-cambio-fisico-1280x720-1-1200x675.jpg",
-            "conditions": [
-                {
-                    "protocol": "Aave",
-                    "indexer": "The Graph",
-                    "description": "initiated flash loans",
-                    "target": 5,
-                    "operator": ">"
-                }
-            ]
-        },
-        {
-            "id": 10,
-            "name": "Ze Explorer",
-            "type": "ZeExplorer",
-            "description": "Ze Explorer knows each spot of the DeFi",
-            "bonus": "another bonus",
-            "issuer": "Aave",
-            "address": "0x9888888888999999999",
-            "tags": [
-                "Aave",
-                "flash loans"
-            ],
-            "image_url": "https://businessmirror.com.ph/wp-content/uploads/2018/12/Magellan-portrait.jpg",
-            "conditions": [
-                {
-                    "protocol": "Compound",
-                    "indexer": "Covalent",
-                    "description": "hold \"Ze Borrower\"",
-                    "target": 1,
-                    "operator": "=="
-                },
-                {
-                    "protocol": "Uniswap",
-                    "indexer": "Covalent",
-                    "description": "hold \"Ze Trader\"",
-                    "target": 1,
-                    "operator": "=="
-                },
-                {
-                    "protocol": "Uniswap",
-                    "indexer": "Covalent",
-                    "description": "hold \"Ze Provider\"",
-                    "target": 1,
-                    "operator": "=="
                 }
             ]
         }
