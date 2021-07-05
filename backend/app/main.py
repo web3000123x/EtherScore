@@ -20,15 +20,11 @@ with open("badges.json") as f:
 badges_definitions = badges["badges"]
 
 # functon to create a new object from a var classname
-
-
 def create_class(classname):
     cls = globals()[classname]
     return cls()
 
 # function to use requests.post to make an API call to the subgraph url
-
-
 def run_query(url, q):
     request = requests.post(url, '', json={'query': q})
     if request.status_code == 200:
@@ -381,13 +377,71 @@ async def badges_definition(request: Request):
     return badges_definitions
 
 
-# Retrieve badges held by the address
+# condition checker (badge.conditions, res query) -> bool
+@app.post(path="/check", status_code=status.HTTP_200_OK)
+async def check_conditions(request: Request):
+    content = await request.json()
+    results = str(content["results"])
+    badge_id = int(content["badge_id"])
+    conditions = badges_definitions[badge_id]["conditions"]
+
+    for result in results:
+        pass
+
+# Dynamic check conditions
 @app.post(path="/oracle", status_code=status.HTTP_200_OK)
 async def answer_request(request: Request):
     """
-    Retrieve badges held by the address
+    Dynamic check condition
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
-    query = str(content["query"])
-    return "51"
+
+    badge_id = int(content["badge_id"])
+
+    conditions = badges_definitions[badge_id]["conditions"]
+
+    retour = []
+
+    for condition in conditions:
+
+        typage, query = str(condition["query"]).split('|')
+        indexer = condition["indexer"]
+        protocol = condition["protocol"]
+    
+        subgraph = ""
+
+        if (indexer == "The Graph"):
+            if (protocol == "Uniswap"):
+                subgraph = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
+            elif (protocol == "Compound"):
+                subgraph = "https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2"
+            elif (protocol == "Aave"):
+                subgraph = "https://api.thegraph.com/subgraphs/name/aave/protocol-v2"
+        elif (indexer == "Covalent"):
+            pass
+        
+        current_query = query.replace("quoted_address", '"'+wallet_address+'"')
+        print("subgraph:", subgraph)
+        print("query:", current_query)
+        res = run_query(subgraph, current_query)
+
+        if str(query).startswith('{swaps'):
+            raw = res['data']['swaps']
+            print("raw", raw)
+            if str(raw).startswith("[{'amountUSD'"):
+                value = raw[0]['amountUSD']
+                print("value", value)
+                retour.append(value)
+            else:
+                retour.append(len(raw))
+        elif str(query).startswith('{account'):
+            raw = res['data']['account']
+            print("raw", raw)
+            if typage == "bool":
+                value = raw['hasBorrowed']
+
+            if typage == "int":
+                value = int(raw['countLiquidated'])
+            retour.append(value)
+    return retour

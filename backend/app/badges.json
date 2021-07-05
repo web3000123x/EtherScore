@@ -17,6 +17,7 @@
                 {
                     "protocol": "Uniswap",
                     "indexer": "The Graph",
+                    "query": "int|{swaps(orderBy: timestamp, where: { to: quoted_address }) {id}}",
                     "description": "number of swaps",
                     "target": 50,
                     "operator": ">"
@@ -40,6 +41,7 @@
                 {
                     "protocol": "Uniswap",
                     "indexer": "The Graph",
+                    "query": "int|{swaps(first:1, orderBy: amountUSD, orderDirection: desc, where: { to: quoted_address }) {amountUSD}}",
                     "description": "max amount swapped",
                     "target": 10000,
                     "operator": ">"
@@ -63,13 +65,15 @@
                 {
                     "protocol": "Compound",
                     "indexer": "The Graph",
-                    "description": "ETH value borrowed",
-                    "target": 0,
-                    "operator": ">"
+                    "query":"bool|{account(id: quoted_address) {hasBorrowed}}",
+                    "description": "has ever borrowed",
+                    "target": "True",
+                    "operator": "=="
                 },
                 {
                     "protocol": "Compound",
                     "indexer": "The Graph",
+                    "query": "int|{account(id: quoted_address) {countLiquidated}}",
                     "description": "number of liquidations",
                     "target": 0,
                     "operator": "=="
