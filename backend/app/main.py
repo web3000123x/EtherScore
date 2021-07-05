@@ -3,10 +3,10 @@ import datetime
 import re
 import requests
 import covalent_api
+import json
 from pprint import pprint
 from fastapi import Request, FastAPI, status
 from jinja2 import Template
-import json
 from simpleeval import simple_eval
 
 # configuration
@@ -381,10 +381,16 @@ async def badges_definition(request: Request):
 # condition checker (badge.conditions, oracle value) -> bool
 @app.post(path="/check", status_code=status.HTTP_200_OK)
 async def check_conditions(request: Request):
+    """
+    Condition checker
+    curl -d '{"results":"[true,0]", "badge_id":"2"}' -X POST localhost/api/check
+    """
     content = await request.json()
-    results = list(content["results"])
+    results = json.loads(str(content["results"]))
     badge_id = int(content["badge_id"])
     conditions = badges_definitions[badge_id]["conditions"]
+
+    evaluations = []
 
     for (result, condition) in zip(results, conditions):
         print("result", result)
@@ -393,13 +399,16 @@ async def check_conditions(request: Request):
         operator = condition['operator']
         expr=str(result)+str(operator)+str(target)
         print(expr)
-        simple_eval(expr)
+        eva = simple_eval(expr)
+        evaluations.append(eva)
+    
+    return all(evaluations)
 
 # Get values via Oracle
 @app.post(path="/oracle", status_code=status.HTTP_200_OK)
 async def answer_request(request: Request):
     """
-    Dynamic check condition
+    Get values via Oracle
     curl -d '{"wallet_address":"0xd465be4e63bd09392bac51fcf04aa13412b552d0", "badge_id":"0"}' -X POST localhost/api/oracle
     """
     content = await request.json()
@@ -440,7 +449,7 @@ async def answer_request(request: Request):
             if str(raw).startswith("[{'amountUSD'"):
                 value = raw[0]['amountUSD']
                 print("value", value)
-                retour.append(value)
+                retour.append(float(value))
             else:
                 retour.append(len(raw))
         elif str(query).startswith('{account'):
