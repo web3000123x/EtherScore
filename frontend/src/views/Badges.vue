@@ -68,6 +68,15 @@
                   > 
                     {{ nft.description }}
                   </p>
+                <v-spacer />
+                <v-chip
+                  class="text-subtitle-1 font-weight-light black mt-5 mb-5"
+                  outlined
+                  color="red"
+                  justify="start"
+                >
+                  Not owned
+                </v-chip>
                 <v-spacer/>
                 <br/>
                 <v-icon
@@ -167,9 +176,11 @@
                 <v-btn
                   color="secondary"
                   class="rounded-xl"
+                  :desactivate="displayClaimed"
                   v-on:click="fakeMetamaskPrompt"
                 >
-                  <span v-if="!isClaimable(nft)"> Not Claimable </span>
+                  <span v-if="!isClaimable(nft) && !displayClaimed"> Not Claimable </span>
+                  <span v-else-if="!isClaimable(nft) && displayClaimed && nft.name === 'Ze Trader'"> Claimed </span>
                   <span v-else> Claim </span>
                 </v-btn>
                 </v-card-actions>
@@ -201,7 +212,9 @@ import json from '../BadgeTokenFactory.json'
         info: null,
         todos: [],
         display: false,
+        displayClaimed:false,
         myJson: json,
+        oracleReturn: [],
         protocolsUrl: { 
           "Compound" : "https://cryptologos.cc/logos/compound-comp-logo.png?v=012",
           "Uniswap" : "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=012",
@@ -269,8 +282,8 @@ import json from '../BadgeTokenFactory.json'
           });
         for (var queryRequest in eventsList) {
           console.log(queryRequest)
-          // var queryResponse = this.requestOracle(this.$store.state.address, "fakeQuery")
-          var oracle = await contract.methods.updateBadgeTokenMinting(eventsList[queryRequest]["returnValues"]["_requestID"],"51")
+          await this.callOracle("0")
+          var oracle = await contract.methods.updateBadgeTokenMinting(eventsList[queryRequest]["returnValues"]["_requestID"],String(this.oracleReturn[0]))
           console.log(oracle)
           var res2 = await oracle.send({from: this.$store.state.address})
           console.log(res2)
@@ -281,9 +294,10 @@ import json from '../BadgeTokenFactory.json'
         .then(function(events){
           return events[0]["returnValues"]["0"]
           });
-        var mintQuery = await contract.methods.mintBadgeToken("0");
-        var res3 = await mintQuery.send({from: this.$store.state.address})
-        console.log(res3);
+        // var mintQuery = await contract.methods.mintBadgeToken("0");
+        // var res3 = await mintQuery.send({from: this.$store.state.address})
+        this.displayClaimed = true
+        // console.log(res3);
 
         // for (var condition in res.events){
         //   console.log(condition[0]["returnValues"]["_requestID"])
@@ -303,6 +317,17 @@ import json from '../BadgeTokenFactory.json'
           }
         }
         return true
+      },
+      async callOracle (badgeId) {
+        const path = process.env.VUE_APP_BASE_URL + 'oracle'
+        await axios.post(path, { wallet_address: String(this.address), badge_id: String(badgeId) })
+          .then((res) => {
+            this.oracleReturn = res.data
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.error(error);
+          })
       },
       async testAddToken(){
         const tokenAddress = '0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B';
