@@ -307,10 +307,10 @@ import json from '../BadgeTokenFactory.json'
         .then(function(events){
           return events[0]["returnValues"]["0"]
           });
-        // var mintQuery = await contract.methods.mintBadgeToken("0");
-        // var res3 = await mintQuery.send({from: this.$store.state.address})
+        var mintQuery = await contract.methods.mintBadgeToken("0");
+        var res3 = await mintQuery.send({from: this.$store.state.address})
         this.displayClaimed = true
-        // console.log(res3);
+        console.log(res3);
 
         // for (var condition in res.events){
         //   console.log(condition[0]["returnValues"]["_requestID"])
