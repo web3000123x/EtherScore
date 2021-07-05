@@ -173,16 +173,26 @@
 
                 <v-card-actions>
                 <badge-dialog-detail :nft="nft" class="rounded-xl mr-15"/>
-                <v-btn
+                <!-- <v-btn
                   color="secondary"
                   class="rounded-xl"
-                  :desactivate="displayClaimed"
+                  :disabled="!isClaimable(nft)"
                   v-on:click="fakeMetamaskPrompt"
                 >
-                  <span v-if="!isClaimable(nft) && !displayClaimed"> Not Claimable </span>
-                  <span v-else-if="!isClaimable(nft) && displayClaimed && nft.name === 'Ze Trader'"> Claimed </span>
+                  <span v-if="!isClaimable(nft) && displayClaimed && nft.name === 'Ze Trader'"> Claimed </span>
+                  <span v-else-if="!isClaimable(nft)"> Not Claimable </span>
                   <span v-else> Claim </span>
-                </v-btn>
+                  </v-btn>
+                  -->
+                    <v-btn
+                      color="secondary"
+                      class="rounded-xl"
+                      :disabled="!isClaimable(nft)"
+                      v-on:click="fakeMetamaskPrompt"
+                    >
+                      <span v-if="!isClaimable(nft)"> Not Claimable </span>
+                      <span v-else> Claim </span>
+                    </v-btn>
                 </v-card-actions>
               </v-card>
             </template>
@@ -255,6 +265,9 @@ import json from '../BadgeTokenFactory.json'
             if (condition.target == 0 && condition.current == 0) {
               return 0
             }
+            if(condition.current > condition.target) {
+              return 100
+            }
             return (100 * condition.current/condition.target)
           }
           if (condition.operator == "==") {
@@ -312,7 +325,7 @@ import json from '../BadgeTokenFactory.json'
       },
       isClaimable(nft){
         for (var condition in nft.conditions) {
-          if (this.getExperienceValue(condition) !== 100) {
+          if (this.getExperienceValue(nft.conditions[condition]) !== 100) {
             return false
           }
         }
