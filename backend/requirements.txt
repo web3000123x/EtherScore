@@ -2,3 +2,4 @@ fastapi
 requests
 jinja2
 web3
+simpleeval

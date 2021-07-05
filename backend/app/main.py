@@ -7,6 +7,7 @@ from pprint import pprint
 from fastapi import Request, FastAPI, status
 from jinja2 import Template
 import json
+from simpleeval import simple_eval
 
 # configuration
 DEBUG = os.environ.get('DEBUG')
@@ -377,22 +378,29 @@ async def badges_definition(request: Request):
     return badges_definitions
 
 
-# condition checker (badge.conditions, res query) -> bool
+# condition checker (badge.conditions, oracle value) -> bool
 @app.post(path="/check", status_code=status.HTTP_200_OK)
 async def check_conditions(request: Request):
     content = await request.json()
-    results = str(content["results"])
+    results = list(content["results"])
     badge_id = int(content["badge_id"])
     conditions = badges_definitions[badge_id]["conditions"]
 
-    for result in results:
-        pass
+    for (result, condition) in zip(results, conditions):
+        print("result", result)
+        print("condition", condition)
+        target = condition['target']
+        operator = condition['operator']
+        expr=str(result)+str(operator)+str(target)
+        print(expr)
+        simple_eval(expr)
 
-# Dynamic check conditions
+# Get values via Oracle
 @app.post(path="/oracle", status_code=status.HTTP_200_OK)
 async def answer_request(request: Request):
     """
     Dynamic check condition
+    curl -d '{"wallet_address":"0xd465be4e63bd09392bac51fcf04aa13412b552d0", "badge_id":"0"}' -X POST localhost/api/oracle
     """
     content = await request.json()
     wallet_address = str(content["wallet_address"])
